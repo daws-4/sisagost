@@ -28,6 +28,6 @@
     ".next/types/**/*.ts",
     "src/components/ui/HeaderNav.jsx",
     "src/app/layout.tsx"
-, "src/app/page.tsx"  ],
+, "src/app/page.tsx", "src/app/api/page.tsx", "src/middleware.js"  ],
   "exclude": ["node_modules"]
 }

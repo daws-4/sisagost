@@ -4,15 +4,14 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import axios from 'axios'
  import { toast, ToastContainer } from "react-toastify";
-import "../../node_modules/react-toastify/dist/ReactToastify.css";
-import "../../node_modules/react-toastify/dist/react-toastify.esm.mjs";
+import "../../../node_modules/react-toastify/dist/ReactToastify.css";
+import "../../../node_modules/react-toastify/dist/react-toastify.esm.mjs";
 import {
   Input,
   ShowHideButtom,
   NetunoLogo,
   SingInButtom,
-} from "../components/ui/index";
-
+} from "../../components/ui/index";
 
 
 
@@ -35,7 +34,7 @@ export default function Home() {
   
   const handleSubmit = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
-      try{const response =await axios.post('/api/auth/login', credencials)
+      try{const response =await axios.post('../api/auth/login', credencials)
     console.log(response)
 
     if(response.status === 200){
@@ -47,6 +46,8 @@ export default function Home() {
         }
       }
   }
+ 
+
 
    useEffect(() => {
     if (showSuccessToast) {

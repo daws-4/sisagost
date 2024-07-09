@@ -8,10 +8,18 @@ import {
   LabelButton,
 } from "../../components/ui";
 import DataTable from "react-data-table-component";
-
+import HeaderNav from "../../components/static/HeaderNav";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React from "react";
+import axios from 'axios'
+
+
 
 export default function Home() {
+
+  const router = useRouter()
+  //fecth de la data
   //estados de los filtros
 
   const [filterId, setFilterId] = useState("");
@@ -28,6 +36,40 @@ export default function Home() {
   const [data, setData] = useState<any[]>([]);
   const [records, setRecords] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [now, setNow] = useState<any[]>([]);
+  const [user, setUser]= useState<any>({})
+
+  console.log(user.data,now)
+  useEffect(() => {
+    const getUser = async () => {
+      const usuario = await axios.get("/api/auth/admin");
+      setUser(usuario);
+       console.log(usuario.data.nombres);
+    };
+    getUser();
+  }, []);
+
+     useEffect(() => {
+       const getNow = async () => {
+         const horaActual = await axios.get("/api/now");
+         setNow(horaActual.data);
+       };
+       getNow();
+     }, []);
+
+    useEffect(() => {
+      fetch("/api/contratos")
+        .then((res) => res.json())
+        .then(setData);
+    }, []);
+    useEffect(() => {
+      const timeout = setTimeout(() => {
+        setRecords(data);
+        setLoading(false);
+      }, 3000);
+      return () => clearTimeout(timeout);
+    }, [data]);
+
 
   const desdeDate = new Date(filterDesde);
   const hastaDate = new Date(filterHasta);
@@ -68,19 +110,8 @@ export default function Home() {
         );
       }
     });
-    console.log(
-      filterId,
-      filterContratista,
-      desdeDate,
-      hastaDate,
-      filterEstatus,
-      filterEmpresa,
-      filterCi,
-      filterFechaInstalacion,
-      filterNodo
-    );
+
     setRecords(filteredRecords);
-    console.log(filteredRecords);
   }
 
   //estados de los formularios
@@ -127,17 +158,26 @@ export default function Home() {
     setNodo(undefined);
   }
 
+
   const columns = [
     {
       name: "Fecha del Contrato",
       selector: (row: any) => row.fecha_contrato,
       sortable: true,
-      format: (row: any) => new Date(row.fecha_contrato).toLocaleDateString(),
+      cell: (row: any) => (
+        <Link href="">
+          {" "}
+          {new Date(row.fecha_contrato).toLocaleDateString()}
+        </Link>
+      ),
     },
     {
       name: "ID de la ONT",
       selector: (row: any) => row.id,
       sortable: true,
+      cell: (row: any) => {
+        return <Link href="">{row.id}</Link>;
+      },
     },
     {
       name: "Status del Contrato",
@@ -145,11 +185,11 @@ export default function Home() {
       sortable: true,
       cell: (row: any) => {
         if (row.estatus_ === 0) {
-          return "Agendado";
+          return <Link href="">Agendado</Link>;
         } else if (row.estatus_ === 1) {
-          return "Instalado";
+          return <Link href="">Instalado</Link>;
         } else if (row.estatus_ === 2) {
-          return "Finalizado";
+          return <Link href="">Finalizado</Link>;
         }
       },
     },
@@ -159,9 +199,9 @@ export default function Home() {
       sortable: true,
       cell: (row: any) => {
         if (row.empresa_contratista) {
-          return "Servitel";
+          return <Link href="">Servitel</Link>;
         } else {
-          return "Hetelca";
+          return <Link href="">Hetelca</Link>;
         }
       },
     },
@@ -169,78 +209,83 @@ export default function Home() {
       name: "Instalador Asignado",
       selector: (row: any) => row.contratista_asignado,
       sortable: true,
+      cell: (row: any) => {
+        return <Link href="">{row.contratista_asignado}</Link>;
+      },
     },
   ];
 
+
+  const estadisticData: any[] = [
+          {
+            activo: data.filter((record)=> record.estatus_ < 2).length,
+            instalado: data.filter((record) => record.estatus_ === 1).length,
+            finalizado: data.filter((record) => record.estatus_ === 2).length,
+            agendado: data.filter((record) => record.estatus_ === 0).length,
+            
+          },
+       
+  ]
+
+
    const estadisticColumns = [
      {
-       name: "Fecha del Contrato",
-       selector: (row: any) => row.fecha_contrato,
-       sortable: true,
-       format: (row: any) => new Date(row.fecha_contrato).toLocaleDateString(),
+       name: "Contratos Activos",
+       selector: (row: any) => row.activo,
      },
      {
-       name: "ID de la ONT",
-       selector: (row: any) => row.id,
-       sortable: true,
+       name: "Contratos Agendados",
+       selector: (row: any) => row.agendado,
      },
      {
-       name: "Status del Contrato",
-       selector: (row: any) => row.estatus_,
-       sortable: true,
-       cell: (row: any) => {
-         if (row.estatus_ === 0) {
-           return "Agendado";
-         } else if (row.estatus_ === 1) {
-           return "Instalado";
-         } else if (row.estatus_ === 2) {
-           return "Finalizado";
-         }
-       },
+       name: "Contratos Instalados",
+       selector: (row: any) => row.instalado,
      },
      {
-       name: "Empresa Asignada",
-       selector: (row: any) => row.empresa_contratista,
-       sortable: true,
-       cell: (row: any) => {
-         if (row.empresa_contratista) {
-           return "Servitel";
-         } else {
-           return "Hetelca";
-         }
-       },
-     },
-     {
-       name: "Instalador Asignado",
-       selector: (row: any) => row.contratista_asignado,
-       sortable: true,
+       name: "Contratos Finalizados",
+       selector: (row: any) => row.finalizado,
      },
    ];
+   const title = `Contratos ${now}`;
 
-  useEffect(() => {
-    fetch("/api/contratos")
-      .then((res) => res.json())
-      .then(setData);
-  }, []);
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setRecords(data);
-      setLoading(false);
-    }, 3000);
-    return () => clearTimeout(timeout);
-  }, [data]);
+   const logout = async () => {
+     try {
+       const res = await axios.get("/api/auth/logout");
+       console.log(res);
+     } catch (error:any) {
+       console.error(error.message);
+     }
+     router.push("/");
+   };
 
   return (
     <div>
+      <HeaderNav>
+        <ul>
+          <li>
+            {user.data ? user.data.nombres : ""}{" "}
+            {user.data ? user.data.apellidos : ""}
+          </li>
+          <li>
+            <button onClick={() => logout()}>cerrar sesión</button>
+          </li>
+        </ul>
+      </HeaderNav>
       <div>
-        <Secondtitle>Bienvenido</Secondtitle>
+        <Secondtitle>
+          Bienvenido {user.data ? user.data.nombres : ""}
+        </Secondtitle>
       </div>
 
       <div className="md:px-20 px-5 z-10 mb-10">
-        <div className='bg-gray-700 md:px-20 px-5 z-10 pt-5'>
+        <div className="bg-gray-700 md:px-20 px-5 z-10 py-5">
           <DataTable
-            data={[]}
+            title={title}
+            data={estadisticData}
             columns={estadisticColumns}
+            progressPending={loading}
+            noDataComponent={"Loading..."}
+            striped
           />
         </div>
       </div>
