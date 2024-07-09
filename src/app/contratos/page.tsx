@@ -165,7 +165,7 @@ export default function Home() {
       selector: (row: any) => row.fecha_contrato,
       sortable: true,
       cell: (row: any) => (
-        <Link href="">
+        <Link href={`/contratos/${row.id}`}>
           {" "}
           {new Date(row.fecha_contrato).toLocaleDateString()}
         </Link>
@@ -176,7 +176,7 @@ export default function Home() {
       selector: (row: any) => row.id,
       sortable: true,
       cell: (row: any) => {
-        return <Link href="">{row.id}</Link>;
+        return <Link href={`/contratos/${row.id}`}>{row.id}</Link>;
       },
     },
     {
@@ -185,11 +185,11 @@ export default function Home() {
       sortable: true,
       cell: (row: any) => {
         if (row.estatus_ === 0) {
-          return <Link href="">Agendado</Link>;
+          return <Link href={`/contratos/${row.id}`}>Agendado</Link>;
         } else if (row.estatus_ === 1) {
-          return <Link href="">Instalado</Link>;
+          return <Link href={`/contratos/${row.id}`}>Instalado</Link>;
         } else if (row.estatus_ === 2) {
-          return <Link href="">Finalizado</Link>;
+          return <Link href={`/contratos/${row.id}`}>Finalizado</Link>;
         }
       },
     },
@@ -199,9 +199,9 @@ export default function Home() {
       sortable: true,
       cell: (row: any) => {
         if (row.empresa_contratista) {
-          return <Link href="">Servitel</Link>;
+          return <Link href={`/contratos/${row.id}`}>Servitel</Link>;
         } else {
-          return <Link href="">Hetelca</Link>;
+          return <Link href={`/contratos/${row.id}`}>Hetelca</Link>;
         }
       },
     },
@@ -210,7 +210,9 @@ export default function Home() {
       selector: (row: any) => row.contratista_asignado,
       sortable: true,
       cell: (row: any) => {
-        return <Link href="">{row.contratista_asignado}</Link>;
+        return (
+          <Link href={`/contratos/${row.id}`}>{row.contratista_asignado}</Link>
+        );
       },
     },
   ];

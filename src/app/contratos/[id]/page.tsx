@@ -12,52 +12,48 @@ import axios from 'axios'
 
 
 
-export default function Home({params} : {params :{id: string}}) {
-  console.log(params)
+export default function Home({ params }: { params: { id: any } }) {
+  console.log(params.id);
 
-  const router = useRouter()
-
-
+  const router = useRouter();
 
   //estados de la data
   const [data, setData] = useState<any[]>([]);
   const [records, setRecords] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [now, setNow] = useState<any[]>([]);
-  const [user, setUser]= useState<any>({})
+  const [user, setUser] = useState<any>({});
 
-  console.log(user.data,now)
+  console.log(user.data, now);
   useEffect(() => {
     const getUser = async () => {
       const usuario = await axios.get("/api/auth/admin");
       setUser(usuario);
-       console.log(usuario.data.nombres);
+      console.log(usuario.data.nombres);
     };
     getUser();
   }, []);
 
-     useEffect(() => {
-       const getNow = async () => {
-         const horaActual = await axios.get("/api/now");
-         setNow(horaActual.data);
-       };
-       getNow();
-     }, []);
+  useEffect(() => {
+    const getNow = async () => {
+      const horaActual = await axios.get("/api/now");
+      setNow(horaActual.data);
+    };
+    getNow();
+  }, []);
 
-    useEffect(() => {
-      fetch(`/api/contratos/${params}`)
-        .then((res) => res.json())
-        .then(setData);
-    }, []);
-    useEffect(() => {
-      const timeout = setTimeout(() => {
-        setRecords(data);
-        setLoading(false);
-      }, 3000);
-      return () => clearTimeout(timeout);
-    }, [data]);
-
-
+  useEffect(() => {
+    fetch(`/api/contratos/${params.id}`)
+      .then((res) => res.json())
+      .then(setData);
+  }, []);
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setRecords(data);
+      setLoading(false);
+    }, 3000);
+    return () => clearTimeout(timeout);
+  }, [data]);
 
   const columns = [
     {
@@ -115,48 +111,44 @@ export default function Home({params} : {params :{id: string}}) {
     },
   ];
 
-
   const estadisticData: any[] = [
-          {
-            activo: data.filter((record)=> record.estatus_ < 2).length,
-            instalado: data.filter((record) => record.estatus_ === 1).length,
-            finalizado: data.filter((record) => record.estatus_ === 2).length,
-            agendado: data.filter((record) => record.estatus_ === 0).length,
-            
-          },
-       
-  ]
+    {
+      activo: data.filter((record) => record.estatus_ < 2).length,
+      instalado: data.filter((record) => record.estatus_ === 1).length,
+      finalizado: data.filter((record) => record.estatus_ === 2).length,
+      agendado: data.filter((record) => record.estatus_ === 0).length,
+    },
+  ];
 
+  const estadisticColumns = [
+    {
+      name: "Contratos Activos",
+      selector: (row: any) => row.activo,
+    },
+    {
+      name: "Contratos Agendados",
+      selector: (row: any) => row.agendado,
+    },
+    {
+      name: "Contratos Instalados",
+      selector: (row: any) => row.instalado,
+    },
+    {
+      name: "Contratos Finalizados",
+      selector: (row: any) => row.finalizado,
+    },
+  ];
+  const title = `Contratos ${now}`;
 
-   const estadisticColumns = [
-     {
-       name: "Contratos Activos",
-       selector: (row: any) => row.activo,
-     },
-     {
-       name: "Contratos Agendados",
-       selector: (row: any) => row.agendado,
-     },
-     {
-       name: "Contratos Instalados",
-       selector: (row: any) => row.instalado,
-     },
-     {
-       name: "Contratos Finalizados",
-       selector: (row: any) => row.finalizado,
-     },
-   ];
-   const title = `Contratos ${now}`;
-
-   const logout = async () => {
-     try {
-       const res = await axios.get("/api/auth/logout");
-       console.log(res);
-     } catch (error:any) {
-       console.error(error.message);
-     }
-     router.push("/");
-   };
+  const logout = async () => {
+    try {
+      const res = await axios.get("/api/auth/logout");
+      console.log(res);
+    } catch (error: any) {
+      console.error(error.message);
+    }
+    router.push("/");
+  };
 
   return (
     <div>
@@ -189,8 +181,6 @@ export default function Home({params} : {params :{id: string}}) {
           />
         </div>
       </div>
-
-      
 
       <div className=" md:px-20 px-5 z-10 ">
         <DataTable
