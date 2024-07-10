@@ -2,6 +2,9 @@
 import { useEffect, useState } from "react";
 import {
   Secondtitle,
+  CampoContrato,
+  TitleContrato,
+  TextContrato
 } from "../../../components/ui";
 import DataTable from "react-data-table-component";
 import HeaderNav from "../../../components/static/HeaderNav";
@@ -13,23 +16,22 @@ import axios from 'axios'
 
 
 export default function Home({ params }: { params: { id: any } }) {
-  console.log(params.id);
+
 
   const router = useRouter();
 
   //estados de la data
   const [data, setData] = useState<any[]>([]);
-  const [records, setRecords] = useState<any[]>([]);
+  const [records, setRecords] = useState<any[]>([{ message: "no data" }]);
   const [loading, setLoading] = useState(true);
   const [now, setNow] = useState<any[]>([]);
   const [user, setUser] = useState<any>({});
-
-  console.log(user.data, now);
+  
+  console.log(records[0], now);
   useEffect(() => {
     const getUser = async () => {
       const usuario = await axios.get("/api/auth/admin");
       setUser(usuario);
-      console.log(usuario.data.nombres);
     };
     getUser();
   }, []);
@@ -43,15 +45,18 @@ export default function Home({ params }: { params: { id: any } }) {
   }, []);
 
   useEffect(() => {
-    fetch(`/api/contratos/${params.id}`)
-      .then((res) => res.json())
-      .then(setData);
+    const getData = async () => {
+      const contratData = await axios.get(`/api/contratos/${params.id}`)
+      setData(contratData.data)
+    };
+    getData()
   }, []);
   useEffect(() => {
+    
     const timeout = setTimeout(() => {
       setRecords(data);
       setLoading(false);
-    }, 3000);
+    }, 4000);
     return () => clearTimeout(timeout);
   }, [data]);
 
@@ -59,86 +64,92 @@ export default function Home({ params }: { params: { id: any } }) {
     {
       name: "Fecha del Contrato",
       selector: (row: any) => row.fecha_contrato,
-      sortable: true,
-      cell: (row: any) => (
-        <Link href="">
-          {" "}
-          {new Date(row.fecha_contrato).toLocaleDateString()}
-        </Link>
-      ),
+      minWidth: "20",
+      center: true,
+      cell: (row: any) => new Date(row.fecha_contrato).toLocaleDateString(),
     },
     {
       name: "ID de la ONT",
       selector: (row: any) => row.id,
-      sortable: true,
+      minWidth: "20",
+      center: true,
       cell: (row: any) => {
-        return <Link href="">{row.id}</Link>;
+        return <p>{row.id}</p>;
+      },
+    },
+    {
+      name: "C.I del cliente",
+      selector: (row: any) => row.ci_cliente,
+      minWidth: "20",
+      center: true,
+      cell: (row: any) => {
+        return <p>{row.ci_cliente}</p>;
+      },
+    },
+    {
+      name: "Cuenta del Cliente",
+      selector: (row: any) => row.id_cuenta,
+      minWidth: "20",
+      center: true,
+      cell: (row: any) => {
+        return <p>{row.id_cuenta}</p>;
       },
     },
     {
       name: "Status del Contrato",
       selector: (row: any) => row.estatus_,
-      sortable: true,
+      minWidth: "20",
+      center: true,
       cell: (row: any) => {
         if (row.estatus_ === 0) {
-          return <Link href="">Agendado</Link>;
+          return <p>Agendado</p>;
         } else if (row.estatus_ === 1) {
-          return <Link href="">Instalado</Link>;
+          return <p>Instalado</p>;
         } else if (row.estatus_ === 2) {
-          return <Link href="">Finalizado</Link>;
+          return <p>Finalizado</p>;
         }
       },
     },
     {
-      name: "Empresa Asignada",
-      selector: (row: any) => row.empresa_contratista,
-      sortable: true,
+      name: "Plan Contratado",
+      selector: (row: any) => row.plan_contratado,
+      minWidth: "20",
+      center: true,
       cell: (row: any) => {
-        if (row.empresa_contratista) {
-          return <Link href="">Servitel</Link>;
-        } else {
-          return <Link href="">Hetelca</Link>;
-        }
+        return <p>{row.plan_contratado}</p>;
       },
     },
     {
-      name: "Instalador Asignado",
-      selector: (row: any) => row.contratista_asignado,
-      sortable: true,
+      name: "Teléfono del Cliente",
+      selector: (row: any) => row.telefono_cliente,
+      minWidth: "20",
+      center: true,
       cell: (row: any) => {
-        return <Link href="">{row.contratista_asignado}</Link>;
+        return <p>{row.telefono_cliente}</p>;
+      },
+    },
+    {
+      name: "Nodo",
+      selector: (row: any) => row.nodo,
+      minWidth: "20",
+      center: true,
+      cell: (row: any) => {
+        return <p>{row.nodo}</p>;
+      },
+    },
+    {
+      name: "Fecha de Instalación",
+      selector: (row: any) => row.fecha_instalacion,
+      minWidth: "20",
+      center: true,
+      cell: (row: any) => {
+        return <p>{row.fecha_instalacion}</p>;
       },
     },
   ];
 
-  const estadisticData: any[] = [
-    {
-      activo: data.filter((record) => record.estatus_ < 2).length,
-      instalado: data.filter((record) => record.estatus_ === 1).length,
-      finalizado: data.filter((record) => record.estatus_ === 2).length,
-      agendado: data.filter((record) => record.estatus_ === 0).length,
-    },
-  ];
+  const title = `Contrato ${params.id} al día ${now}`;
 
-  const estadisticColumns = [
-    {
-      name: "Contratos Activos",
-      selector: (row: any) => row.activo,
-    },
-    {
-      name: "Contratos Agendados",
-      selector: (row: any) => row.agendado,
-    },
-    {
-      name: "Contratos Instalados",
-      selector: (row: any) => row.instalado,
-    },
-    {
-      name: "Contratos Finalizados",
-      selector: (row: any) => row.finalizado,
-    },
-  ];
-  const title = `Contratos ${now}`;
 
   const logout = async () => {
     try {
@@ -173,8 +184,8 @@ export default function Home({ params }: { params: { id: any } }) {
         <div className="bg-gray-700 md:px-20 px-5 z-10 py-5">
           <DataTable
             title={title}
-            data={estadisticData}
-            columns={estadisticColumns}
+            columns={columns}
+            data={records}
             progressPending={loading}
             noDataComponent={"Loading..."}
             striped
@@ -182,22 +193,17 @@ export default function Home({ params }: { params: { id: any } }) {
         </div>
       </div>
 
-      <div className=" md:px-20 px-5 z-10 ">
-        <DataTable
-          title="Contratos"
-          columns={columns}
-          data={records}
-          selectableRows
-          pagination
-          fixedHeader
-          progressPending={loading}
-          noDataComponent={"Loading..."}
-          striped
-          selectableRowsHighlight
-          selectableRowsNoSelectAll
-          paginationPerPage={20}
-          onSelectedRowsChange={(data) => console.log(data)}
-        />
+      <div className="md:px-20 px-5 z-10 mb-10">
+        <div className="flex flex-row bg-gray-700 md:px-20 px-5 z-10 py-5">
+          <CampoContrato>
+            <TitleContrato>Empresa</TitleContrato>
+          <TextContrato></TextContrato>
+          </CampoContrato>
+          <CampoContrato>
+            <TitleContrato>Instalador</TitleContrato>
+            <TextContrato></TextContrato>
+          </CampoContrato>
+        </div>
       </div>
     </div>
   );

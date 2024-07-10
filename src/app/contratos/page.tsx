@@ -44,7 +44,6 @@ export default function Home() {
     const getUser = async () => {
       const usuario = await axios.get("/api/auth/admin");
       setUser(usuario);
-       console.log(usuario.data.nombres);
     };
     getUser();
   }, []);

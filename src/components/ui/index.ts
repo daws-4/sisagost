@@ -8,16 +8,22 @@ import InputFilter from './input_filter'
 import SelectFilter from './select_filter'
 import LabelFilter from './label_filter'
 import LabelButton from './label_button'
+import TitleContrato from './Title_contrato'
+import CampoContrato from './Campo_contrato'
+import TextContrato from './Text_contrato'
 
-export{
-    LabelButton,
-    LabelFilter,
-    SelectFilter,
-    InputFilter,
-    Input,
-    MiComponente,
-    ShowHideButtom,
-    NetunoLogo,
-    SingInButtom,
-    Secondtitle
-}
+export {
+  LabelButton,
+  LabelFilter,
+  SelectFilter,
+  InputFilter,
+  Input,
+  MiComponente,
+  ShowHideButtom,
+  NetunoLogo,
+  SingInButtom,
+  Secondtitle,
+  CampoContrato,
+  TextContrato,
+  TitleContrato
+};

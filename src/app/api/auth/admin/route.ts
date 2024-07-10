@@ -2,36 +2,32 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-
-import { NextApiRequest } from "next";
-
-export function GET(request: NextApiRequest) {
+export function GET() {
   const cookieStore = cookies();
-  const token = cookieStore.get("TokenLogin");
+  const token:any = cookieStore.get("TokenLogin");
 
-  if (!token) {
-   return NextResponse.json(
-     {
-       message: "Invalid credentials",
-     },
-     {
-       status: 401,
-     }
-   );
-  }else{
-    const { email, rol, contratista, nombres, apellidos, n_telefono } = jwt.verify(
-    token.value,
-    "secret"
-  ) as JwtPayload;
+  try{
+    const { email, rol, contratista, nombres, apellidos, n_telefono } =
+      jwt.verify(token.value, "secret") as JwtPayload;
 
-  return NextResponse.json({
-    email,
-    rol,
-    contratista,
-    nombres,
-    apellidos,
-    n_telefono,
-  });}
+    return NextResponse.json({
+      email,
+      rol,
+      contratista,
+      nombres,
+      apellidos,
+      n_telefono,
+    });
+  }catch(error){
+    return NextResponse.json(
+      {
+        message: "Invalid credentials",
+      },
+      {
+        status: 401,
+      }
+    );
+  }
 
-  
+
 }
