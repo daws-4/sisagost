@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 
-export async function middleware(request) {
+export async function middleware(request: any) {
   const jwt = request.cookies.get("TokenLogin");
 
   // if (!jwt) return NextResponse.redirect(new URL("/login", request.url));
