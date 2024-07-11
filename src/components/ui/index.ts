@@ -11,6 +11,8 @@ import LabelButton from './label_button'
 import TitleContrato from './Title_contrato'
 import CampoContrato from './Campo_contrato'
 import TextContrato from './Text_contrato'
+import CrudDelete from './crud_buttons_delete'
+import CrudUpdate from './crud_buttons_update'
 
 export {
   LabelButton,
@@ -25,5 +27,7 @@ export {
   Secondtitle,
   CampoContrato,
   TextContrato,
-  TitleContrato
+  TitleContrato,
+  CrudDelete,
+  CrudUpdate
 };

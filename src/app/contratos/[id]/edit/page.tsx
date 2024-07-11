@@ -280,7 +280,7 @@ export default function Home({ params }: { params: { id: any } }) {
             </CampoContrato>
           </div>
           <div className="flex lg:flex-row flex-col">
-            <CrudUpdate href={`${params.id}/edit`}>Editar</CrudUpdate>
+            <CrudUpdate href="">Editar</CrudUpdate>
             <CrudDelete onClick={() => deleteContrat()}>Eliminar</CrudDelete>
           </div>
         </div>
