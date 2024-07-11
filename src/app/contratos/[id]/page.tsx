@@ -151,6 +151,7 @@ export default function Home({ params }: { params: { id: any } }) {
   const title = `Contrato ${params.id} al día ${now}`;
 
 
+
   const logout = async () => {
     try {
       const res = await axios.get("/api/auth/logout");
@@ -194,15 +195,47 @@ export default function Home({ params }: { params: { id: any } }) {
       </div>
 
       <div className="md:px-20 px-5 z-10 mb-10">
-        <div className="flex flex-row bg-gray-700 md:px-20 px-5 z-10 py-5">
-          <CampoContrato>
-            <TitleContrato>Empresa</TitleContrato>
-          <TextContrato></TextContrato>
-          </CampoContrato>
-          <CampoContrato>
-            <TitleContrato>Instalador</TitleContrato>
-            <TextContrato></TextContrato>
-          </CampoContrato>
+        <div className="flex flex-col bg-gray-700 md:px-20 px-5 z-10 py-5">
+          <div className="flex lg:flex-row flex-col">
+            <CampoContrato href="/contratos">
+              <TitleContrato>Empresa</TitleContrato>
+              <TextContrato>
+                {records[0].empresa_contratista == 1 ? "Servitel" : "Hetelca"}
+              </TextContrato>
+            </CampoContrato>
+            <CampoContrato href="/login">
+              <TitleContrato>Instalador</TitleContrato>
+              <TextContrato>{records[0].contratista_asignado} </TextContrato>
+              {/* api de los usuarios */}
+            </CampoContrato>
+            <CampoContrato href="/login">
+              <TitleContrato>Dirección</TitleContrato>
+              <TextContrato>{records[0].direccion_contrato}</TextContrato>
+            </CampoContrato>
+            {records[0].estatus_ ? (
+              <CampoContrato href="/login">
+                <TitleContrato>Material Utilizado</TitleContrato>
+                <TextContrato>
+                  {records[0].recursos_inventario_instalacion}
+                </TextContrato>
+              </CampoContrato>
+            ) : (
+              ""
+            )}
+            <CampoContrato href="#">
+              <TitleContrato>
+                {records[0].estatus_ ? "Observaciones" : "Motivo de Pausa"}
+              </TitleContrato>
+              <TextContrato>
+                {records[0].estatus_
+                  ? records[0].observaciones_instalacion
+                  : records[0].motivo_stanby}
+              </TextContrato>
+            </CampoContrato>
+          </div>
+          <div>
+            
+          </div>
         </div>
       </div>
     </div>

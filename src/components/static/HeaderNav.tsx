@@ -17,10 +17,10 @@ const HeaderNav = ({children}: {children: React.ReactNode}) => {
 
   // Array containing navigation items
   const navItems = [
-    { id: 1, text: 'Contratos' },
-    { id: 2, text: 'Empresas' },
-    { id: 3, text: 'Instaladores' },
-    { id: 4, text: 'Subir' },
+    { id: 1, text: "Contratos", href: "/contratos" },
+    { id: 2, text: "Empresas", href: "/contratos" },
+    { id: 3, text: "Instaladores", href: "/contratos" },
+    { id: 4, text: "Subir", href: "/contratos" },
   ];
 
   return (
@@ -31,12 +31,14 @@ const HeaderNav = ({children}: {children: React.ReactNode}) => {
       {/* Desktop Navigation */}
       <ul className="hidden md:flex">
         {navItems.map((item) => (
-          <li
-            key={item.id}
-            className="p-4 hover:bg-[#00df9a] rounded-xl m-2 cursor-pointer duration-300 hover:text-black"
-          >
-            <Link href={""}>{item.text}</Link>
-          </li>
+          <Link href={item.href}>
+            <li
+              key={item.id}
+              className="p-4 hover:bg-[#00df9a] rounded-xl m-2 cursor-pointer duration-300 hover:text-black"
+            >
+              {item.text}{" "}
+            </li>
+          </Link>
         ))}
         <li>
           <button
@@ -92,7 +94,7 @@ const HeaderNav = ({children}: {children: React.ReactNode}) => {
           </div>
         </li>
         <SlidingPanel type={"right"} isOpen={openPanel} size={30}>
-          <div className='flex'>
+          <div className="flex">
             <div>{children}</div>
             <div className="self-end">
               <button onClick={() => setOpenPanel(false)}>cerrar</button>

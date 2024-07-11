@@ -39,7 +39,11 @@ export default function Home() {
   const [now, setNow] = useState<any[]>([]);
   const [user, setUser]= useState<any>({})
 
-  console.log(user.data,now)
+  records.map((item, index)=>{
+    console.log(item, index)
+  })
+
+  console.log(now)
   useEffect(() => {
     const getUser = async () => {
       const usuario = await axios.get("/api/auth/admin");
@@ -160,6 +164,12 @@ export default function Home() {
 
   const columns = [
     {
+      name: '#',
+      selector: (row:any, index:any) => index,
+      cell: (row:any, index:any) => (<p>{index}</p>),
+      maxWidth: '1',
+    },
+    {
       name: "Fecha del Contrato",
       selector: (row: any) => row.fecha_contrato,
       sortable: true,
@@ -248,6 +258,13 @@ export default function Home() {
      },
    ];
    const title = `Contratos ${now}`;
+
+   const paginationComponentOptions = {
+     rowsPerPageText: "Filas por página",
+     rangeSeparatorText: "de",
+     selectAllRowsItem: true,
+     selectAllRowsItemText: "Todas",
+   };
 
    const logout = async () => {
      try {
@@ -384,14 +401,12 @@ export default function Home() {
           title="Contratos"
           columns={columns}
           data={records}
-          selectableRows
           pagination
           fixedHeader
           progressPending={loading}
           noDataComponent={"Loading..."}
           striped
-          selectableRowsHighlight
-          selectableRowsNoSelectAll
+          paginationComponentOptions={paginationComponentOptions}
           paginationPerPage={20}
           onSelectedRowsChange={(data) => console.log(data)}
         />
