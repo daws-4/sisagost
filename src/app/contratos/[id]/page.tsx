@@ -221,13 +221,7 @@ export default function Home({ params }: { params: { id: any } }) {
           </li>
         </ul>
       </HeaderNav>
-      <div>
-        <Secondtitle>
-          Bienvenido {user.data ? user.data.nombres : ""}
-        </Secondtitle>
-      </div>
-
-      <div className="md:px-20 px-5 z-10 mb-10">
+      <div className="md:px-20 px-5 pt-5 z-10">
         <div className="bg-gray-700 md:px-20 px-5 z-10 py-5">
           <DataTable
             title={title}

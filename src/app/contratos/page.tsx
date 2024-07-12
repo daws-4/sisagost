@@ -39,9 +39,6 @@ export default function Home() {
   const [now, setNow] = useState<any[]>([]);
   const [user, setUser]= useState<any>({})
 
-  records.map((item, index)=>{
-    console.log(item, index)
-  })
 
   console.log(now)
   useEffect(() => {
@@ -87,7 +84,7 @@ export default function Home() {
         return (
           recordDate >= desdeSiempre &&
           recordDate <= hastaSiempre &&
-          String(record.id).includes(filterId) &&
+          String(record.id).startsWith(filterId) &&
           String(record.contratista_asignado).includes(filterContratista) &&
           String(record.estatus_).includes(filterEstatus) &&
           String(record.empresa_contratista).includes(filterEmpresa) &&
@@ -99,7 +96,7 @@ export default function Home() {
         );
       } else {
         return (
-          String(record.id).includes(filterId) &&
+          String(record.id).startsWith(filterId) &&
           String(record.contratista_asignado).includes(filterContratista) &&
           recordDate >= desdeDate &&
           recordDate <= hastaDate &&
@@ -160,14 +157,17 @@ export default function Home() {
     setFechaInstalacion(undefined);
     setNodo(undefined);
   }
+  const mapedRecords = records.map((item, index) => {
+    return item = Object.assign({index: `${index+1}`}, item)
 
-
+   });
+console.log(mapedRecords)
   const columns = [
     {
       name: '#',
-      selector: (row:any, index:any) => index,
-      cell: (row:any, index:any) => (<p>{index}</p>),
-      maxWidth: '1',
+      selector: (row:any,) => row.index,
+      cell: (row:any,) => (<p>{row.index}</p>),
+      maxWidth: '0',
     },
     {
       name: "Fecha del Contrato",
@@ -400,7 +400,7 @@ export default function Home() {
         <DataTable
           title="Contratos"
           columns={columns}
-          data={records}
+          data={mapedRecords}
           pagination
           fixedHeader
           progressPending={loading}

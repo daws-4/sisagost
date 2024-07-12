@@ -13,6 +13,9 @@ import CampoContrato from './Campo_contrato'
 import TextContrato from './Text_contrato'
 import CrudDelete from './crud_buttons_delete'
 import CrudUpdate from './crud_buttons_update'
+import FormCrud from './formCrud/formCrud'
+import InputCrud from './formCrud/inputCrud'
+import LabelCrud from './formCrud/labelCrud'
 
 export {
   LabelButton,
@@ -29,5 +32,8 @@ export {
   TextContrato,
   TitleContrato,
   CrudDelete,
-  CrudUpdate
+  CrudUpdate,
+  FormCrud,
+  InputCrud,
+  LabelCrud
 };

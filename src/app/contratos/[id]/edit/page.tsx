@@ -1,51 +1,30 @@
 "use client";
 import { useEffect, useState } from "react";
-import {
-  Secondtitle,
-  CampoContrato,
-  TitleContrato,
-  TextContrato,
-  CrudDelete,
-  CrudUpdate,
-} from "../../../components/ui";
+import { FormCrud, InputCrud, LabelCrud } from "../../../../components/ui";
 import DataTable from "react-data-table-component";
-import HeaderNav from "../../../components/static/HeaderNav";
- import { toast, ToastContainer } from "react-toastify";
- import "../../../../node_modules/react-toastify/dist/ReactToastify.css";
- import "../../../../node_modules/react-toastify/dist/react-toastify.esm.mjs";
+import HeaderNav from "../../../../components/static/HeaderNav";
+import { toast, ToastContainer } from "react-toastify";
+import "../../../../../node_modules/react-toastify/dist/ReactToastify.css";
+import "../../../../../node_modules/react-toastify/dist/react-toastify.esm.mjs";
 import { useRouter } from "next/navigation";
 import React from "react";
-import axios from 'axios'
-
-
+import axios from "axios";
 
 export default function Home({ params }: { params: { id: any } }) {
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [showErrorToast, setShowErrorToast] = useState(false);
 
   const router = useRouter();
+  
+ 
+
 
   //estados de la data
   const [data, setData] = useState<any[]>([]);
   const [records, setRecords] = useState<any[]>([{ message: "no data" }]);
   const [loading, setLoading] = useState(true);
-  const [now, setNow] = useState<any[]>([]);
   const [user, setUser] = useState<any>({});
 
-  const deleteContrat = async() => {
-    try{
- const deleted = await axios.get(`/contratos/${params.id}/delete`);
- console.log(deleted);
- if (deleted.status === 200) {
-   setShowSuccessToast(true);
- }
-    }catch(error:any){
-       if (error.deleted && error.deleted.status === 401) {
-         setShowErrorToast(true);
-       }
-    }
-  }
-  console.log(records[0], now);
   useEffect(() => {
     const getUser = async () => {
       const usuario = await axios.get("/api/auth/admin");
@@ -54,23 +33,17 @@ export default function Home({ params }: { params: { id: any } }) {
     getUser();
   }, []);
 
-  useEffect(() => {
-    const getNow = async () => {
-      const horaActual = await axios.get("/api/now");
-      setNow(horaActual.data);
-    };
-    getNow();
-  }, []);
+
+  console.log(records[0]);
 
   useEffect(() => {
     const getData = async () => {
-      const contratData = await axios.get(`/api/contratos/${params.id}`)
-      setData(contratData.data)
+      const contratData = await axios.get(`/api/contratos/${params.id}`);
+      setData(contratData.data);
     };
-    getData()
+    getData();
   }, []);
   useEffect(() => {
-    
     const timeout = setTimeout(() => {
       setRecords(data);
       setLoading(false);
@@ -78,97 +51,50 @@ export default function Home({ params }: { params: { id: any } }) {
     return () => clearTimeout(timeout);
   }, [data]);
 
-  const columns = [
-    {
-      name: "Fecha del Contrato",
-      selector: (row: any) => row.fecha_contrato,
-      minWidth: "20",
-      center: true,
-      cell: (row: any) => new Date(row.fecha_contrato).toLocaleDateString(),
-    },
-    {
-      name: "ID de la ONT",
-      selector: (row: any) => row.id,
-      minWidth: "20",
-      center: true,
-      cell: (row: any) => {
-        return <p>{row.id}</p>;
-      },
-    },
-    {
-      name: "C.I del cliente",
-      selector: (row: any) => row.ci_cliente,
-      minWidth: "20",
-      center: true,
-      cell: (row: any) => {
-        return <p>{row.ci_cliente}</p>;
-      },
-    },
-    {
-      name: "Cuenta del Cliente",
-      selector: (row: any) => row.id_cuenta,
-      minWidth: "20",
-      center: true,
-      cell: (row: any) => {
-        return <p>{row.id_cuenta}</p>;
-      },
-    },
-    {
-      name: "Status del Contrato",
-      selector: (row: any) => row.estatus_,
-      minWidth: "20",
-      center: true,
-      cell: (row: any) => {
-        if (row.estatus_ === 0) {
-          return <p>Agendado</p>;
-        } else if (row.estatus_ === 1) {
-          return <p>Instalado</p>;
-        } else if (row.estatus_ === 2) {
-          return <p>Finalizado</p>;
+ const [credencials, setCredencials] = useState({
+   ci_cliente: records[0].ci_cliente,
+   id: records[0].id,
+   estatus: records[0].estatus_,
+   id_cuenta: records[0].id_cuenta,
+   direccion_contrato: records[0].direccion_contrato,
+   telefono_cliente: records[0].telefono_cliente,
+   empresa_contratista: records[0].empresa_contratista,
+   contratista_asignado: records[0].contratista_asignado,
+   nodo: records[0].nodo,
+   motivo_standby: records[0].motivo_standby,
+   fecha_instalacion : records[0].fecha_instalacion ,
+   recursos_inventario_instalacion: records[0].recursos_inventario_instalacion,
+   observaciones_instalacion: records[0].observaciones_instalacion,
+
+ });
+
+  const title = `Contrato ${params.id}`;
+    const handleChange = (e: { target: { value: string; name: string } }) => {
+      setCredencials({
+        ...credencials,
+        [e.target.name]: e.target.value,
+      });
+    };
+
+    const handleSubmit = async (e: { preventDefault: () => void }) => {
+      e.preventDefault();
+      try {
+        const response = await axios.post(
+          `/api/contratos/${params.id}/edit`,
+          credencials
+        );
+        console.log(response);
+
+        if (response.status === 200) {
+          setShowSuccessToast(true);
         }
-      },
-    },
-    {
-      name: "Plan Contratado",
-      selector: (row: any) => row.plan_contratado,
-      minWidth: "20",
-      center: true,
-      cell: (row: any) => {
-        return <p>{row.plan_contratado}</p>;
-      },
-    },
-    {
-      name: "Teléfono del Cliente",
-      selector: (row: any) => row.telefono_cliente,
-      minWidth: "20",
-      center: true,
-      cell: (row: any) => {
-        return <p>{row.telefono_cliente}</p>;
-      },
-    },
-    {
-      name: "Nodo",
-      selector: (row: any) => row.nodo,
-      minWidth: "20",
-      center: true,
-      cell: (row: any) => {
-        return <p>{row.nodo}</p>;
-      },
-    },
-    {
-      name: "Fecha de Instalación",
-      selector: (row: any) => row.fecha_instalacion,
-      minWidth: "20",
-      center: true,
-      cell: (row: any) => {
-        return <p>{row.fecha_instalacion}</p>;
-      },
-    },
-  ];
-
-  const title = `Contrato ${params.id} al día ${now}`;
-
-
+      } catch (error: any) {
+        if (error.response && error.response.status === 401) {
+          setShowErrorToast(true);
+        }
+      }
+    };
+  
 
   const logout = async () => {
     try {
@@ -179,7 +105,6 @@ export default function Home({ params }: { params: { id: any } }) {
     }
     router.push("/");
   };
-
 
   useEffect(() => {
     if (showSuccessToast) {
@@ -206,7 +131,6 @@ export default function Home({ params }: { params: { id: any } }) {
     }
   }, [showSuccessToast, showErrorToast, router]);
 
-
   return (
     <div>
       <ToastContainer />
@@ -221,67 +145,46 @@ export default function Home({ params }: { params: { id: any } }) {
           </li>
         </ul>
       </HeaderNav>
-      <div>
-        <Secondtitle>
-          Bienvenido {user.data ? user.data.nombres : ""}
-        </Secondtitle>
-      </div>
 
-      <div className="md:px-20 px-5 z-10 mb-10">
-        <div className="bg-gray-700 md:px-20 px-5 z-10 py-5">
-          <DataTable
-            title={title}
-            columns={columns}
-            data={records}
-            progressPending={loading}
-            noDataComponent={"Loading..."}
-            striped
-          />
-        </div>
-      </div>
-
-      <div className="md:px-20 px-5 z-10 mb-10">
-        <div className="flex flex-col bg-gray-700 md:px-20 px-5 z-10 py-5">
-          <div className="flex lg:flex-row flex-col">
-            <CampoContrato href="/contratos">
-              <TitleContrato>Empresa</TitleContrato>
-              <TextContrato>
-                {records[0].empresa_contratista == 1 ? "Servitel" : "Hetelca"}
-              </TextContrato>
-            </CampoContrato>
-            <CampoContrato href="/login">
-              <TitleContrato>Instalador</TitleContrato>
-              <TextContrato>{records[0].contratista_asignado} </TextContrato>
-              {/* api de los usuarios */}
-            </CampoContrato>
-            <CampoContrato href="/login">
-              <TitleContrato>Dirección</TitleContrato>
-              <TextContrato>{records[0].direccion_contrato}</TextContrato>
-            </CampoContrato>
-            {records[0].estatus_ ? (
-              <CampoContrato href="/login">
-                <TitleContrato>Material Utilizado</TitleContrato>
-                <TextContrato>
-                  {records[0].recursos_inventario_instalacion}
-                </TextContrato>
-              </CampoContrato>
-            ) : (
-              ""
-            )}
-            <CampoContrato href="#">
-              <TitleContrato>
-                {records[0].estatus_ ? "Observaciones" : "Motivo de Pausa"}
-              </TitleContrato>
-              <TextContrato>
-                {records[0].estatus_
-                  ? records[0].observaciones_instalacion
-                  : records[0].motivo_stanby}
-              </TextContrato>
-            </CampoContrato>
-          </div>
-          <div className="flex lg:flex-row flex-col">
-            <CrudUpdate href="">Editar</CrudUpdate>
-            <CrudDelete onClick={() => deleteContrat()}>Eliminar</CrudDelete>
+      <div className="md:px-20 flex justify-center items-center px-5 pt-5 z-10 mb-10">
+        <div className="flex flex-col justify-center items-center max-w-md bg-gray-700 md:px-20 px-5 z-10 py-5 lg:max-w-lg ">
+          <div className="w-full max-w-xs">
+            <FormCrud onSubmit={handleSubmit}>
+              <div className="mb-4">
+                <LabelCrud htmlFor="fecha_contrato">fecha del contrato</LabelCrud>
+                <InputCrud
+                  onChange={handleChange}
+                  id="fecha_contrato"
+                  type="date"
+                  placeholder="fecha del contrato"
+                  value={'12-12-2022'}
+                />
+              </div>
+              <div className="mb-6">
+                <LabelCrud htmlFor="ci_cliente">Cédula del Cliente</LabelCrud>
+                <InputCrud
+                  onChange={handleChange}
+                  id="ci_clienye"
+                  type="text"
+                  placeholder="Cédula del Cliente"
+                  value={records[0].ci_liente}
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <button
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                  type="button"
+                >
+                  Sign In
+                </button>
+                <a
+                  className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800"
+                  href="#"
+                >
+                  Forgot Password?
+                </a>
+              </div>
+            </FormCrud>
           </div>
         </div>
       </div>
