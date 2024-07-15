@@ -66,7 +66,7 @@ export default function Home() {
       const timeout = setTimeout(() => {
         setRecords(data);
         setLoading(false);
-      }, 3000);
+      }, 1000);
       return () => clearTimeout(timeout);
     }, [data]);
 

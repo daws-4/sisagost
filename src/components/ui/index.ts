@@ -16,6 +16,7 @@ import CrudUpdate from './crud_buttons_update'
 import FormCrud from './formCrud/formCrud'
 import InputCrud from './formCrud/inputCrud'
 import LabelCrud from './formCrud/labelCrud'
+import SelectCrud from './formCrud/selectCrud'
 
 export {
   LabelButton,
@@ -35,5 +36,6 @@ export {
   CrudUpdate,
   FormCrud,
   InputCrud,
-  LabelCrud
+  LabelCrud,
+  SelectCrud
 };

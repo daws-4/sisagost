@@ -10,14 +10,12 @@ import {
 } from "../../../components/ui";
 import DataTable from "react-data-table-component";
 import HeaderNav from "../../../components/static/HeaderNav";
- import { toast, ToastContainer } from "react-toastify";
- import "../../../../node_modules/react-toastify/dist/ReactToastify.css";
- import "../../../../node_modules/react-toastify/dist/react-toastify.esm.mjs";
+import { toast, ToastContainer } from "react-toastify";
+import "../../../../node_modules/react-toastify/dist/ReactToastify.css";
+import "../../../../node_modules/react-toastify/dist/react-toastify.esm.mjs";
 import { useRouter } from "next/navigation";
 import React from "react";
-import axios from 'axios'
-
-
+import axios from "axios";
 
 export default function Home({ params }: { params: { id: any } }) {
   const [showSuccessToast, setShowSuccessToast] = useState(false);
@@ -27,25 +25,49 @@ export default function Home({ params }: { params: { id: any } }) {
 
   //estados de la data
   const [data, setData] = useState<any[]>([]);
-  const [records, setRecords] = useState<any[]>([{ message: "no data" }]);
+  const [records, setRecords] = useState<any[]>([
+    {
+      ci_cliente: "",
+      contratista_asignado: "",
+      direccion_contrato: "",
+      empresa_contratista: "0",
+      estatus_: "",
+      fecha_contrato: "",
+      fecha_instalacion: "",
+      id: "",
+      id_cuenta: "",
+      motivo_standby: "",
+      nodo: "",
+      observaciones_instalacion: "",
+      plan_contratado: "",
+      recursos_inventario_instalacion: "",
+      telefono_cliente: "",
+    },
+  ]);
   const [loading, setLoading] = useState(true);
   const [now, setNow] = useState<any[]>([]);
   const [user, setUser] = useState<any>({});
 
-  const deleteContrat = async() => {
-    try{
- const deleted = await axios.get(`/contratos/${params.id}/delete`);
- console.log(deleted);
- if (deleted.status === 200) {
-   setShowSuccessToast(true);
- }
-    }catch(error:any){
-       if (error.deleted && error.deleted.status === 401) {
-         setShowErrorToast(true);
-       }
+  const deleteContrat = async (event: any) => {
+    const confirmDelete = window.confirm(
+      "¿Estás seguro que deseas ELIMINAR este contrato?"
+    );
+    if (confirmDelete) {
+      try {
+        const deleted = await axios.get(`/contratos/${params.id}/delete`);
+        console.log(deleted);
+        if (deleted.status === 200) {
+          setShowSuccessToast(true);
+        }
+      } catch (error: any) {
+        if (error.deleted && error.deleted.status === 401) {
+          setShowErrorToast(true);
+        }
+      }
     }
-  }
-  console.log(records[0], now);
+  };
+
+  console.log(records[0]);
   useEffect(() => {
     const getUser = async () => {
       const usuario = await axios.get("/api/auth/admin");
@@ -64,17 +86,16 @@ export default function Home({ params }: { params: { id: any } }) {
 
   useEffect(() => {
     const getData = async () => {
-      const contratData = await axios.get(`/api/contratos/${params.id}`)
-      setData(contratData.data)
+      const contratData = await axios.get(`/api/contratos/${params.id}`);
+      setData(contratData.data);
     };
-    getData()
+    getData();
   }, []);
   useEffect(() => {
-    
     const timeout = setTimeout(() => {
       setRecords(data);
       setLoading(false);
-    }, 4000);
+    }, 3000);
     return () => clearTimeout(timeout);
   }, [data]);
 
@@ -168,8 +189,6 @@ export default function Home({ params }: { params: { id: any } }) {
 
   const title = `Contrato ${params.id} al día ${now}`;
 
-
-
   const logout = async () => {
     try {
       const res = await axios.get("/api/auth/logout");
@@ -179,7 +198,6 @@ export default function Home({ params }: { params: { id: any } }) {
     }
     router.push("/");
   };
-
 
   useEffect(() => {
     if (showSuccessToast) {
@@ -205,7 +223,6 @@ export default function Home({ params }: { params: { id: any } }) {
       setShowErrorToast(false);
     }
   }, [showSuccessToast, showErrorToast, router]);
-
 
   return (
     <div>
@@ -275,7 +292,7 @@ export default function Home({ params }: { params: { id: any } }) {
           </div>
           <div className="flex lg:flex-row flex-col">
             <CrudUpdate href={`${params.id}/edit`}>Editar</CrudUpdate>
-            <CrudDelete onClick={() => deleteContrat()}>Eliminar</CrudDelete>
+            <CrudDelete onClick={() => deleteContrat("")}>Eliminar</CrudDelete>
           </div>
         </div>
       </div>
