@@ -157,6 +157,7 @@ export default function Home() {
     setFechaInstalacion(undefined);
     setNodo(undefined);
   }
+  
   const mapedRecords = records.map((item, index) => {
     return item = Object.assign({index: `${index+1}`}, item)
 
