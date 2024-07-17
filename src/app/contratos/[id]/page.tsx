@@ -67,7 +67,6 @@ export default function Home({ params }: { params: { id: any } }) {
     }
   };
 
-  console.log(records[0]);
   useEffect(() => {
     const getUser = async () => {
       const usuario = await axios.get("/api/auth/admin");
@@ -181,9 +180,7 @@ export default function Home({ params }: { params: { id: any } }) {
       selector: (row: any) => row.fecha_instalacion,
       minWidth: "20",
       center: true,
-      cell: (row: any) => {
-        return <p>{row.fecha_instalacion}</p>;
-      },
+      cell: (row: any) => new Date(row.fecha_instalacion).toLocaleDateString(),
     },
   ];
 
@@ -192,7 +189,6 @@ export default function Home({ params }: { params: { id: any } }) {
   const logout = async () => {
     try {
       const res = await axios.get("/api/auth/logout");
-      console.log(res);
     } catch (error: any) {
       console.error(error.message);
     }
@@ -257,36 +253,50 @@ export default function Home({ params }: { params: { id: any } }) {
             <CampoContrato href="/contratos">
               <TitleContrato>Empresa</TitleContrato>
               <TextContrato>
-                {records[0].empresa_contratista == 1 ? "Servitel" : "Hetelca"}
+                {records[0]
+                  ? records[0].empresa_contratista == 1
+                    ? "Servitel"
+                    : "Hetelca"
+                  : ""}
               </TextContrato>
             </CampoContrato>
             <CampoContrato href="/login">
               <TitleContrato>Instalador</TitleContrato>
-              <TextContrato>{records[0].contratista_asignado} </TextContrato>
+              <TextContrato>
+                {records[0]
+                  ? records[0].contratista_asignado
+                    ? records[0].contratista_asignado
+                    : ""
+                  : ""}
+              </TextContrato>
               {/* api de los usuarios */}
             </CampoContrato>
             <CampoContrato href="/login">
               <TitleContrato>Dirección</TitleContrato>
-              <TextContrato>{records[0].direccion_contrato}</TextContrato>
+              <TextContrato>
+                {records[0] ? records[0].direccion_contrato ?? "" : ""}
+              </TextContrato>
             </CampoContrato>
-            {records[0].estatus_ ? (
-              <CampoContrato href="/login">
-                <TitleContrato>Material Utilizado</TitleContrato>
-                <TextContrato>
-                  {records[0].recursos_inventario_instalacion}
-                </TextContrato>
-              </CampoContrato>
-            ) : (
-              ""
-            )}
+            {records[0] && records[0].estatus_
+              ? (
+                  <CampoContrato href="/login">
+                    <TitleContrato>Material Utilizado</TitleContrato>
+                    <TextContrato>
+                      {records[0]
+                        ? records[0].recursos_inventario_instalacion ?? ""
+                        : ""}
+                    </TextContrato>
+                  </CampoContrato>
+                ) ?? ""
+              : ""}
             <CampoContrato href="#">
               <TitleContrato>
-                {records[0].estatus_ ? "Observaciones" : "Motivo de Pausa"}
+                {records[0]?.estatus_ ? "Observaciones" : "Motivo de Pausa"}
               </TitleContrato>
               <TextContrato>
-                {records[0].estatus_
-                  ? records[0].observaciones_instalacion
-                  : records[0].motivo_stanby}
+                {records[0]?.estatus_
+                  ? records[0]?.observaciones_instalacion ?? ""
+                  : records[0]?.motivo_stanby ?? ""}
               </TextContrato>
             </CampoContrato>
           </div>

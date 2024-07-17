@@ -36,17 +36,20 @@ export default function Home({ params }: { params: { id: any } }) {
   }, []);
   useEffect(() => {
     const timeout = setTimeout(() => {
-      setId(data[0].id);
-      setId_cuenta(data[0].id_cuenta);
-      setFecha_contrato(data[0].fecha_contrato);
-      setCi_cliente(data[0].ci_cliente);
-      setContratista_asignado(data[0].contratista_asignado);
-      setEmpresa_contratista(data[0].empresa_contratista);
-      setEstatus_(data[0].estatus_);
-      setFecha_instalacion(data[0].fecha_instalacion);
-      setNodo(data[0].nodo);
-      setPlan_contratado(data[0].plan_contratado);
-      setTelefono_cliente(data[0].telefono_cliente);
+         if (data && data[0]) {
+           // Verifica que data y data[0] existan
+           setId(data[0].id);
+           setId_cuenta(data[0].id_cuenta);
+           setFecha_contrato(data[0].fecha_contrato);
+           setCi_cliente(data[0].ci_cliente);
+           setContratista_asignado(data[0].contratista_asignado);
+           setEmpresa_contratista(data[0].empresa_contratista);
+           setEstatus_(data[0].estatus_);
+           setFecha_instalacion(data[0].fecha_instalacion);
+           setNodo(data[0].nodo);
+           setPlan_contratado(data[0].plan_contratado);
+           setTelefono_cliente(data[0].telefono_cliente);
+         }
     }, 2000);
     return () => clearTimeout(timeout);
   }, [data]);
@@ -59,31 +62,19 @@ export default function Home({ params }: { params: { id: any } }) {
  const [fecha_contrato, setFecha_contrato] = useState<string | undefined>();
  const [ci_cliente, setCi_cliente] = useState<string | undefined>();
  const [contratista_asignado, setContratista_asignado] = useState<string | undefined>();
- const [empresa_contratista, setEmpresa_contratista] = useState<string | undefined>();
+ const [empresa_contratista, setEmpresa_contratista] = useState<number | undefined>();
  const [estatus_, setEstatus_] = useState<number | undefined>();
  const [fecha_instalacion, setFecha_instalacion] = useState<string | undefined>();
  const [nodo, setNodo] = useState<string | undefined>();
  const [plan_contratado, setPlan_contratado] = useState<string | undefined>();
  const [telefono_cliente, setTelefono_cliente] = useState<string | undefined>();
 
- function formReset2() {
-   setId(undefined);
-   setId_cuenta(undefined);
-   setFecha_contrato(undefined);
-   setCi_cliente(undefined);
-   setContratista_asignado(undefined);
-   setEmpresa_contratista(undefined);
-   setEstatus_(undefined);
-   setFecha_instalacion(undefined);
-   setNodo(undefined);
-   setPlan_contratado(undefined);
-   setTelefono_cliente(undefined);
- }
+
 const handleChangeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
   const { name, value } = e.target;
   switch (name) {
     case "empresa_contratista":
-      setEmpresa_contratista(value);
+      setEmpresa_contratista(Number(value));
       break;
     case "estatus_":
       setEstatus_(Number(value));
@@ -91,6 +82,8 @@ const handleChangeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     default:
       break;
   }
+  console.log(estatus_,contratista_asignado);
+
 };
 
  const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -118,14 +111,16 @@ const handleChangeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
        setNodo(value);
        break;
      case "plan_contratado":
-       setPlan_contratado(value);
+       setPlan_contratado(value);     
        break;
      case "telefono_cliente":
-       setTelefono_cliente(value);
+       setTelefono_cliente(value);       
        break;
      default:
        break;
    }
+   console.log(empresa_contratista, id, id_cuenta, ci_cliente,  nodo, plan_contratado, telefono_cliente,fecha_contrato , fecha_instalacion);
+
  };
 
     const handleSubmit = async (e: { preventDefault: () => void }) => {
@@ -133,7 +128,7 @@ const handleChangeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
       try {
         const response = await axios.post(
           `/api/contratos/${params.id}/edit`,
-          //credenciales o datos a enviar
+          {id, id_cuenta, fecha_contrato, ci_cliente, contratista_asignado, empresa_contratista, estatus_, fecha_instalacion, nodo, plan_contratado, telefono_cliente}
         );
         console.log(response);
 
@@ -160,13 +155,13 @@ const handleChangeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
 
   useEffect(() => {
     if (showSuccessToast) {
-      toast.success("Registro Eliminado!", {
+      toast.success("Registro Actualizado!", {
         position: "top-center",
         autoClose: 10000,
       });
 
       setTimeout(() => {
-        router.push("/contratos");
+        router.push(`/contratos/${params.id}`);
       }, 4000);
 
       setShowSuccessToast(false);
@@ -182,6 +177,12 @@ const handleChangeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
       setShowErrorToast(false);
     }
   }, [showSuccessToast, showErrorToast, router]);
+
+  const fecha_contrato_date = new Date(fecha_contrato ?? "");
+  let fecha_contrato_string = fecha_contrato_date.toLocaleDateString("en-CA");
+  const fecha_instalacion_date = new Date(fecha_instalacion ?? "");
+  let fecha_instalacion_string = fecha_instalacion_date.toLocaleDateString("en-CA");
+  
 
   return (
     <div>
@@ -200,7 +201,7 @@ const handleChangeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
 
       <div className=" md:px-20 flex justify-center items-center px-5 pt-5 z-10 mb-10">
         <div className="flex flex-col justify-center items-center bg-gray-700 md:px-20 px-5 z-10 py-5  ">
-          <div className=" max-w-screen-xl">
+          <div className="sm:w-sm max-w-screen-xl">
             <h3 className="text-3xl pb-4 font-bold dark:text-white">{title}</h3>
             <FormCrud onSubmit={handleSubmit}>
               <div className="flex flex-col flex-wrap">
@@ -211,7 +212,6 @@ const handleChangeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
                     id="id"
                     type="text"
                     name="id"
-                    onClick={formReset2}
                     placeholder="ID de la ONT"
                     value={id}
                   />
@@ -223,7 +223,6 @@ const handleChangeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
                     id="id_cuenta"
                     type="text"
                     name="id_cuenta"
-                    onClick={formReset2}
                     placeholder="ID de la cuenta"
                     value={id_cuenta}
                   />
@@ -235,13 +234,10 @@ const handleChangeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
                   <InputCrud
                     onChange={handleChangeInput}
                     name="fecha_contrato"
-                    onClick={formReset2}
                     id="fecha_contrato"
                     type="date"
                     placeholder="fecha del contrato"
-                    value={
-                      (fecha_contrato = new Date().toLocaleDateString("en-CA"))
-                    }
+                    value={fecha_contrato_string}
                   />
                 </div>
                 <div className="mr-2 mb-4 w-44">
@@ -251,7 +247,6 @@ const handleChangeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
                     id="ci_cliente"
                     type="text"
                     name="ci_cliente"
-                    onClick={formReset2}
                     placeholder="Cédula del Cliente"
                     value={ci_cliente}
                   />
@@ -265,7 +260,6 @@ const handleChangeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
                     id="contratista_asignado"
                     type="text"
                     name="contratista_asignado"
-                    onClick={formReset2}
                     placeholder="Contratista Asignado"
                     value={contratista_asignado}
                   />
@@ -278,13 +272,13 @@ const handleChangeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
                     onChange={handleChangeSelect}
                     id="empresa_contratista"
                     name="empresa_contratista"
-                    onClick={formReset2}
                     value={empresa_contratista}
                   >
                     {empresa_contratista ? (
-                      <option defaultValue={1}>Servitel</option>
+                      
+                      <option defaultValue="1">Servitel</option>
                     ) : (
-                      <option defaultValue={0}>Hetelca</option>
+                      <option defaultValue="0">Hetelca</option>
                     )}
                     {empresa_contratista ? (
                       <option value="0">Hetelca</option>
@@ -295,13 +289,13 @@ const handleChangeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
                 </div>
               </div>
               <div className="flex flex-col flex-wrap">
-                <div className="ml-2 mb-4 w-44">
+                <div className="ml-0 sm:ml-2 mb-4 w-44">
                   <LabelCrud htmlFor="estatus_">Status</LabelCrud>
                   <SelectCrud
                     onChange={handleChangeSelect}
                     id="estatus_"
                     name="estatus_"
-                    onClick={formReset2}
+                    value={estatus_}
                   >
                     {estatus_ == 2 ? (
                       <option defaultValue={2}>Finalizado</option>
@@ -319,38 +313,31 @@ const handleChangeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
                     )}
                   </SelectCrud>
                 </div>
-                <div className="ml-2 mb-4 w-44">
+                <div className="ml-0 sm:ml-2 mb-4 w-44">
                   <LabelCrud htmlFor="fecha_instalacion">
                     Fecha de Instalación
                   </LabelCrud>
                   <InputCrud
                     onChange={handleChangeInput}
                     name="fecha_instalacion"
-                    onClick={formReset2}
                     id="fecha_instalacion"
                     type="date"
                     placeholder="Fecha de Instalación"
-                    value={
-            
-                      (fecha_instalacion = new Date().toLocaleDateString(
-                        "en-CA"
-                      ))
-                    }
+                    value={fecha_instalacion_string}
                   />
                 </div>
-                <div className="ml-2 mb-4 w-44">
+                <div className="ml-0 sm:ml-2 mb-4 w-44">
                   <LabelCrud htmlFor="nodo">Nodo</LabelCrud>
                   <InputCrud
                     onChange={handleChangeInput}
                     id="nodo"
                     type="text"
                     name="nodo"
-                    onClick={formReset2}
                     placeholder="Nodo"
                     value={nodo}
                   />
                 </div>
-                <div className="ml-2 mb-4 w-44">
+                <div className="ml-0 sm:ml-2 mb-4 w-44">
                   <LabelCrud htmlFor="plan_contratado">
                     Servicios Contratados
                   </LabelCrud>
@@ -359,12 +346,11 @@ const handleChangeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
                     id="plan_contratado"
                     type="text"
                     name="plan_contratado"
-                    onClick={formReset2}
                     placeholder="Servicios Contratados"
                     value={plan_contratado}
                   />
                 </div>
-                <div className="ml-2 mb-6 w-44">
+                <div className="ml-0 sm:ml-2 mb-6 w-44">
                   <LabelCrud htmlFor="telefono_cliente">
                     Teléfono del Cliente
                   </LabelCrud>
@@ -373,17 +359,16 @@ const handleChangeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
                     id="telefono_cliente"
                     type="text"
                     name="telefono_cliente"
-                    onClick={formReset2}
                     placeholder="Teléfono del Cliente"
                     value={telefono_cliente}
                   />
                 </div>
-                <div className="ml-6 mb-6 mt-6 flex items-center justify-between">
+                <div className="ml-8 mb-6 mt-6 flex items-center justify-between">
                   <button
                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                    type="button"
+                    type="submit"
                   >
-                    Sign In
+                    Actualizar
                   </button>
                 </div>
               </div>
