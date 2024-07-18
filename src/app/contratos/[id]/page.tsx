@@ -48,6 +48,29 @@ export default function Home({ params }: { params: { id: any } }) {
   const [now, setNow] = useState<any[]>([]);
   const [user, setUser] = useState<any>({});
 
+  const finishContrat = async (event: any) => {
+    const confirmFinish = window.confirm(
+      "¿Estás seguro que deseas FINALIZAR este contrato?"
+    );
+    if (confirmFinish) {
+      try {
+        const finished = await axios.get(`/contratos/${params.id}/finish`);
+        console.log(finished);
+        if (finished.status === 200) {
+          setShowSuccessToast(true);
+          setTimeout(() => {
+           window.location.reload();
+          }, 4000);
+        }
+      } catch (error: any) {
+        if (error.deleted && error.deleted.status === 401) {
+          setShowErrorToast(true);
+        }
+      }
+    }
+  };
+
+
   const deleteContrat = async (event: any) => {
     const confirmDelete = window.confirm(
       "¿Estás seguro que deseas ELIMINAR este contrato?"
@@ -302,6 +325,13 @@ export default function Home({ params }: { params: { id: any } }) {
           </div>
           <div className="flex lg:flex-row flex-col">
             <CrudUpdate href={`${params.id}/edit`}>Editar</CrudUpdate>
+            {records[0]?.estatus_ == 2 ? (
+              ""
+            ) : (
+              <CrudUpdate onClick={() => finishContrat("")}>
+                Finalizar
+              </CrudUpdate>
+            )}
             <CrudDelete onClick={() => deleteContrat("")}>Eliminar</CrudDelete>
           </div>
         </div>

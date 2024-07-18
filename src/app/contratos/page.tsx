@@ -39,8 +39,6 @@ export default function Home() {
   const [now, setNow] = useState<any[]>([]);
   const [user, setUser]= useState<any>({})
 
-
-  console.log(now)
   useEffect(() => {
     const getUser = async () => {
       const usuario = await axios.get("/api/auth/admin");
@@ -162,7 +160,6 @@ export default function Home() {
     return item = Object.assign({index: `${index+1}`}, item)
 
    });
-console.log(mapedRecords)
   const columns = [
     {
       name: '#',
@@ -270,7 +267,6 @@ console.log(mapedRecords)
    const logout = async () => {
      try {
        const res = await axios.get("/api/auth/logout");
-       console.log(res);
      } catch (error:any) {
        console.error(error.message);
      }

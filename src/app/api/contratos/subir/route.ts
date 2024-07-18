@@ -8,13 +8,12 @@ export async function POST(request: any, { params }: { params: { id: any } }) {
     
   const cookieStore = cookies();
   const token: any = cookieStore.get("TokenLogin");
-  console.log('funcionaaa ',id, fecha_contrato, ci_cliente, estatus_, id_cuenta, plan_contratado, telefono_cliente, nodo, empresa_contratista, fecha_instalacion)
 
   try {
     jwt.verify(token.value, "secret") as JwtPayload;
     // Paso 1: Consulta previa para verificar si el id ya existe en otro registro
     const idCheck: object[]  = await pool.query(`
-      SELECT * FROM contratos WHERE id='${id}' AND id != '${params.id}';
+      SELECT * FROM contratos WHERE id='${id}';
     `);
 
     // Paso 2: Evaluación de la consulta
@@ -25,14 +24,14 @@ export async function POST(request: any, { params }: { params: { id: any } }) {
       { status: 401 })
     }
 
-    // Paso 4: Actualización del registro
-    const result: object[] = await pool.query(`
-      UPDATE contratos SET id='${id}', fecha_instalacion = '${fecha_instalacion}', fecha_contrato = '${fecha_contrato}', ci_cliente = '${ci_cliente}', estatus_ = '${estatus_}', id_cuenta = '${id_cuenta}', plan_contratado = '${plan_contratado}', telefono_cliente = '${telefono_cliente}', nodo = '${nodo}', empresa_contratista = '${empresa_contratista}' WHERE id = '${params.id}';
-    `);
+    // Paso 4: Creación del registro
+  const result: object[] = await pool.query(`
+      INSERT INTO contratos (id, fecha_instalacion, fecha_contrato, ci_cliente, estatus_, id_cuenta, plan_contratado, telefono_cliente, nodo, empresa_contratista) VALUES ('${id}', '${fecha_contrato}', '${fecha_instalacion}', '${ci_cliente}', '${estatus_}', '${id_cuenta}', '${plan_contratado}', '${telefono_cliente}', '${nodo}', '${empresa_contratista}');
+`);
     console.log("funciona bien ", result);
 
     return NextResponse.json(
-      { message: "updated succesfuly" },
+      { message: "created succesfuly" },
       { status: 200 }
     );
   } catch (error) {

@@ -12,6 +12,7 @@ import axios from "axios";
 export default function Home({ params }: { params: { id: any } }) {
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [showErrorToast, setShowErrorToast] = useState(false);
+  const [showErrorToastMessage, setShowErrorToastMessage] = useState("Error");
 
   const router = useRouter();
 
@@ -138,6 +139,7 @@ const handleChangeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
       } catch (error: any) {
         if (error.response && error.response.status === 401) {
           setShowErrorToast(true);
+          setShowErrorToastMessage(error.response.data.message);
         }
       }
     };
@@ -161,27 +163,43 @@ const handleChangeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
       });
 
       setTimeout(() => {
-        router.push(`/contratos/${params.id}`);
+        router.push(`/contratos/${id}`);
+         setShowSuccessToast(false);
       }, 4000);
 
-      setShowSuccessToast(false);
+     
     }
 
     if (showErrorToast) {
-      toast.error("Error", {
+      toast.error(showErrorToastMessage, {
         position: "top-center",
         className: "foo-bar",
-        autoClose: false,
+        autoClose: 5000,
       });
+            setTimeout(() => {
+             setShowErrorToast(false);
+            }, 5000);
 
-      setShowErrorToast(false);
+      
     }
   }, [showSuccessToast, showErrorToast, router]);
 
   const fecha_contrato_date = new Date(fecha_contrato ?? "");
-  let fecha_contrato_string = fecha_contrato_date.toLocaleDateString("en-CA");
+const añoUTC = fecha_contrato_date.getUTCFullYear();
+const mesUTC = fecha_contrato_date.getUTCMonth() + 1;
+const díaUTC = fecha_contrato_date.getUTCDate();
+const mesFormateado = mesUTC < 10 ? `0${mesUTC}` : mesUTC;
+const díaFormateado = díaUTC < 10 ? `0${díaUTC}` : díaUTC;
+const fechaUTC_contrato = `${añoUTC}-${mesFormateado}-${díaFormateado}`;
+
+
   const fecha_instalacion_date = new Date(fecha_instalacion ?? "");
-  let fecha_instalacion_string = fecha_instalacion_date.toLocaleDateString("en-CA");
+  const añoUTC_instalacion = fecha_instalacion_date.getUTCFullYear();
+  const mesUTC_instalacion = fecha_instalacion_date.getUTCMonth() + 1;
+  const díaUTC_instalacion = fecha_instalacion_date.getUTCDate();
+  const mesFormateado_instalacion = mesUTC_instalacion < 10 ? `0${mesUTC_instalacion}` : mesUTC_instalacion;
+  const díaFormateado_instalacion = díaUTC_instalacion < 10 ? `0${díaUTC_instalacion}` : díaUTC_instalacion;
+  const fechaUTC_instalacion = `${añoUTC_instalacion}-${mesFormateado_instalacion}-${díaFormateado_instalacion}`;
   
 
   return (
@@ -237,7 +255,7 @@ const handleChangeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
                     id="fecha_contrato"
                     type="date"
                     placeholder="fecha del contrato"
-                    value={fecha_contrato_string}
+                    value={fechaUTC_contrato}
                   />
                 </div>
                 <div className="mr-2 mb-4 w-44">
@@ -275,7 +293,6 @@ const handleChangeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
                     value={empresa_contratista}
                   >
                     {empresa_contratista ? (
-                      
                       <option defaultValue="1">Servitel</option>
                     ) : (
                       <option defaultValue="0">Hetelca</option>
@@ -323,7 +340,7 @@ const handleChangeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
                     id="fecha_instalacion"
                     type="date"
                     placeholder="Fecha de Instalación"
-                    value={fecha_instalacion_string}
+                    value={fechaUTC_instalacion}
                   />
                 </div>
                 <div className="ml-0 sm:ml-2 mb-4 w-44">

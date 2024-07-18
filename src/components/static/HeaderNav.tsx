@@ -20,7 +20,7 @@ const HeaderNav = ({children}: {children: React.ReactNode}) => {
     { id: 1, text: "Contratos", href: "/contratos" },
     { id: 2, text: "Empresas", href: "/contratos" },
     { id: 3, text: "Instaladores", href: "/contratos" },
-    { id: 4, text: "Subir", href: "/contratos" },
+    { id: 4, text: "Subir", href: "/contratos/subir" },
   ];
 
   return (
