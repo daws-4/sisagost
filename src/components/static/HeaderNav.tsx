@@ -71,12 +71,14 @@ const HeaderNav = ({children}: {children: React.ReactNode}) => {
 
         {/* Mobile Navigation Items */}
         {navItems.map((item) => (
-          <li
-            key={item.id}
-            className="p-4 border-b rounded-xl hover:bg-[#00df9a] duration-300 hover:text-black cursor-pointer border-gray-600"
-          >
-            {item.text}
-          </li>
+          <Link href={item.href}>
+            <li
+              key={item.id}
+              className="p-4 border-b rounded-xl hover:bg-[#00df9a] duration-300 hover:text-black cursor-pointer border-gray-600"
+            >
+              {item.text}
+            </li>
+          </Link>
         ))}
         <li
           onClick={() => setOpenPanel(true)}

@@ -28,6 +28,7 @@
     "mysql2": "^3.10.0",
     "net": "^1.0.2",
     "next": "^14.2.5",
+    "next-connect": "^1.0.0",
     "os": "^0.1.2",
     "pat": "^0.0.1",
     "react": "^18",
@@ -39,6 +40,7 @@
     "recharts": "^2.13.0-alpha.4",
     "serverless-mysql": "^1.5.5",
     "tls": "^0.0.1",
+    "uuid": "^10.0.0",
     "xml2js": "^0.6.2"
   },
   "devDependencies": {
@@ -50,6 +52,7 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/uuid": "^10.0.0",
     "@types/xml2js": "^0.4.14",
     "eslint": "^8",
     "eslint-config-next": "14.2.3",

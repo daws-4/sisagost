@@ -54,6 +54,35 @@ export default function Home({ params }: { params: { id: any } }) {
     string | undefined
   >();
 
+  const[xml, setXml] = useState<any>();
+  const[csv, setCsv] = useState<any>();
+
+    const handleSubmitXml = async (e: { preventDefault: () => void }) => {
+      e.preventDefault();
+      if(!xml)return
+      try {
+         const data = new FormData();
+         data.set("file", xml);
+
+         const response = await fetch("/api/contratos/subir/xml", {
+           method: "POST",
+           body: data,
+         });
+         console.log(response);
+
+        if (response.status === 200) {
+          setShowSuccessToast(true);
+        }
+      } catch (error: any) {
+        if (error.response && error.response.status === 401) {
+          setShowErrorToast(true);
+          setShowErrorToastMessage(error.response.data.message);
+        }
+      }
+    };
+
+
+
   const handleChangeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
     switch (name) {
@@ -162,7 +191,8 @@ export default function Home({ params }: { params: { id: any } }) {
       });
 
       setTimeout(() => {
-        router.push(`/contratos/${id}`);
+        id ? router.push(`/contratos/${id}`) :
+        router.push(`/contratos`);
         setShowSuccessToast(false);
       }, 4000);
     }
@@ -173,6 +203,9 @@ export default function Home({ params }: { params: { id: any } }) {
         className: "foo-bar",
         autoClose: 5000,
       });
+      setTimeout(()=>{
+        setShowErrorToast(true);
+      },1000)
     }
   }, [showSuccessToast, showErrorToast, router]);
 
@@ -404,10 +437,20 @@ export default function Home({ params }: { params: { id: any } }) {
               <h3 className="text-3xl pb-4 font-bold dark:text-white">
                 Subir Contratos XML
               </h3>
-              <FormCrud >
+              <FormCrud
+                onSubmit={handleSubmitXml}
+              >
                 <div className="flex flex-col">
                   <div className="sm:w-72 w-44">
-                    <InputCrud type="file" />
+                    <InputCrud
+                      type="file"
+                      onChange={(e) => {
+                        if (e.target.files) {
+                          setXml(e.target.files[0]);
+                          console.log(e.target.files[0]);
+                        }
+                      }}
+                    />
                   </div>
                   <div className="ml-8 mb-6 mt-6 flex items-center justify-between">
                     <button
@@ -426,7 +469,7 @@ export default function Home({ params }: { params: { id: any } }) {
               <h3 className="text-3xl pb-4 font-bold dark:text-white">
                 Subir Contratos CSV
               </h3>
-              <FormCrud >
+              <FormCrud>
                 <div className="flex flex-col">
                   <div className="sm:w-72 w-44">
                     <InputCrud type="file" />

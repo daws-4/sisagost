@@ -1,29 +1,23 @@
 import { pool } from "@/libs/db";
 import jwt, { JwtPayload } from "jsonwebtoken";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { IncomingForm } from "formidable";
-import xml2js from "xml2js";
+import { parseString } from "xml2js";
 import { promises as fs } from "fs";
-import { dirname, extname, join } from "path";
+import path from "path";
+import { writeFile } from "fs/promises";
 import { fileURLToPath } from "url";
 import multer from "multer";
 
-
-
-export async function POST(request: any) {
-
-
-
-
-const CURRENT_DIR = dirname(fileURLToPath(import.meta.url));
-const ROOT_DIR = join(CURRENT_DIR, "../");
+const CURRENT_DIR = path.dirname(fileURLToPath(import.meta.url));
+const ROOT_DIR = path.join(CURRENT_DIR, "../");
 const MIMETYPES = ["text/xml"];
 
 const multerUpload = multer({
   storage: multer.diskStorage({
-    destination: join(CURRENT_DIR, "../uploads"),
+    destination: path.join(process.cwd(), "public/uploads/xml"),
     filename: (req, file, cb) => {
-      const fileExtension = extname(file.originalname);
+      const fileExtension = path.extname(file.originalname);
       const fileName = file.originalname.split(fileExtension)[0];
 
       cb(null, `${fileName}-${Date.now()}${fileExtension}`);
@@ -38,16 +32,33 @@ const multerUpload = multer({
   },
 });
 
+export async function POST(request: any) {
 
-var parser = new xml2js.Parser();
-  fs.readFile(
-    ROOT_DIR + `./uploads/${req.file.filename}`,
-    function (err, data) {
-      if (err) {
-        console.log(err);
-      } else {
-        parser.parseString(data, function (err, result))}})
-  // A partir de aquí, puedes continuar con la lógica de tu aplicación,
-  // como verificar el token y realizar operaciones de base de datos.
-  // Asegúrate de adaptar el código para usar los datos obtenidos del XML.
+
+    const cookieStore = cookies();
+  const token: any = cookieStore.get("TokenLogin");
+
+  try {
+    jwt.verify(token.value, "secret") as JwtPayload;
+
+    const data = await request.formData();
+    const file: File | null = data.get("file") as unknown as File;
+
+    if (!file) {
+      return NextResponse.json({ success: false });
+    }
+  multerUpload.single("file");
+
+  return NextResponse.json({ success: true });
+  } catch(  error){
+    console.log(error)
+      return NextResponse.json(
+        {
+          message: "Invalid credentials",
+        },
+        {
+          status: 401,
+        })
+    }
+
 }

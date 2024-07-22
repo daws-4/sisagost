@@ -35,7 +35,6 @@ export async function POST(request: any, { params }: { params: { id: any } }) {
       { status: 200 }
     );
   } catch (error) {
-    console.log('algo falló', error)
     return NextResponse.json(
       {
         message: "Invalid credentials",

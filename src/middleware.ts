@@ -30,6 +30,7 @@ export async function middleware(request: any) {
 }
 export const config = {
   matcher: ["/contratos/:path*",
-    '/login'
+    '/login',
+    '/api/contratos/:path*'
   ],
 };
