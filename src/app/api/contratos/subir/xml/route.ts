@@ -3,40 +3,17 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { parseString } from "xml2js";
-import { promises as fs } from "fs";
+import * as fs from "fs";
 import path from "path";
-import { writeFile } from "fs/promises";
-import { fileURLToPath } from "url";
-import multer from "multer";
-
-const CURRENT_DIR = path.dirname(fileURLToPath(import.meta.url));
-const ROOT_DIR = path.join(CURRENT_DIR, "../");
-const MIMETYPES = ["text/xml"];
-
-const multerUpload = multer({
-  storage: multer.diskStorage({
-    destination: path.join(process.cwd(), "public/uploads/xml"),
-    filename: (req, file, cb) => {
-      const fileExtension = path.extname(file.originalname);
-      const fileName = file.originalname.split(fileExtension)[0];
-
-      cb(null, `${fileName}-${Date.now()}${fileExtension}`);
-    },
-  }),
-  fileFilter: (req, file, cb) => {
-    if (MIMETYPES.includes(file.mimetype)) cb(null, true);
-    else cb(new Error(`Only ${MIMETYPES.join(" ")} mimetypes are allowed`));
-  },
-  limits: {
-    fieldSize: 100000000,
-  },
-});
+import { writeFile, readFile } from "fs/promises";
 
 export async function POST(request: any) {
-
-
-    const cookieStore = cookies();
+  const cookieStore = cookies();
   const token: any = cookieStore.get("TokenLogin");
+
+  const query: { id: number }[] = await pool.query(`SELECT id FROM contratos`);
+  let queryres = 0;
+  let itemId
 
   try {
     jwt.verify(token.value, "secret") as JwtPayload;
@@ -45,20 +22,114 @@ export async function POST(request: any) {
     const file: File | null = data.get("file") as unknown as File;
 
     if (!file) {
-      return NextResponse.json({ success: false });
-    }
-  multerUpload.single("file");
-
-  return NextResponse.json({ success: true });
-  } catch(  error){
-    console.log(error)
       return NextResponse.json(
         {
-          message: "Invalid credentials",
+          message: "Archivo no válido",
         },
         {
           status: 401,
-        })
+        }
+      );
+    } else if (file.type !== "text/xml") {
+      return NextResponse.json(
+        {
+          message: "Formato de archivo no válido. Se requiere un archivo XML.",
+        },
+        {
+          status: 400,
+        }
+      );
     }
-
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+    // Obtener la estampa de tiempo actual
+    const timestamp = Date.now();
+    // Modificar el nombre del archivo añadiendo la estampa de tiempo al inicio
+    const modifiedFileName = `${timestamp.toString()}-${file.name}`;
+    // Construir la ruta del archivo con el nuevo nombre
+    const filePath = path.join(
+      process.cwd(),
+      "public/uploads/xml",
+      modifiedFileName
+    );
+    await writeFile(filePath, buffer);
+    console.log(
+      `open ${filePath} to see the uploaded file ${modifiedFileName}`
+    );
+    const redFile = await readFile(filePath, { encoding: "utf8" });
+    console.log("mi promesa");
+    parseString(redFile, async (err: any, result: any) => {
+      if (err) {
+        console.error(err);
+       queryres= 0
+      }else{
+        console.log(query[0].id);
+        console.log(result.contratos.contrato[0].id);
+        for (const item of query) {
+          for (const contrato of result.contratos.contrato) {
+            if (item.id == contrato.id[0]) {
+              console.log("ID duplicado encontrado");
+              queryres = 2;
+              itemId = item.id;
+              console.log(itemId);
+              break;
+            } else {
+              queryres = 1;              
+            }
+          }
+          if (queryres == 2) {
+            break;
+          }
+        }
+        if (queryres==1){
+          for (const contrato of result.contratos.contrato) {
+            console.log(contrato.id[0]);
+            const xmldb = await pool.query(
+              `INSERT INTO contratos SET (fecha_contrato, id, ci_cliente, estatus_, id_cuenta, plan_contratado, direccion_contrato, motivo_standby, fecha_instalacion, recursos_inventario_instalacion, observaciones_instalacion, contratista_asignado, telefono_cliente, nodo, empresa_contratista) VALUES ('${contrato.fecha_contrato[0]}','${contrato.id[0]}','${contrato.ci_cliente[0]}','${contrato.estatus_[0]}','${contrato.id_cuenta[0]}','${contrato.plan_contratado[0]}','${contrato.direccion_contrato[0]}','${contrato.motivo_standby[0]}','${contrato.fecha_instalacion[0]}','${contrato.recursos_inventario_instalacion[0]}','${contrato.observaciones_instalacion[0]}','${contrato.contratista_asignado[0]}','${contrato.telefono_cliente[0]}','${contrato.nodo[0]}','${contrato.empresa_contratista[0]}') `
+            );
+          }
+        }
+      }
+      
+    });
+    if (queryres == 1) {
+      return NextResponse.json(
+        {
+          message: "Archivo subido correctamente a la base de datos",
+        },
+        {
+          status: 201,
+        }
+      );
+    } else if (queryres == 2) {
+      return NextResponse.json(
+        {
+          message: `ID ${itemId} ya existente en la base de datos`,
+        },
+        {
+          status: 401,
+        }
+      );
+    }else if (queryres == 0){
+       return NextResponse.json(
+         {
+           message:
+             "Error de Sintaxis en el archivo XML. Por favor, verifique la estructura del archivo.",
+         },
+         {
+           status: 400,
+         }
+       );
+    }
+  } catch (error) {
+    console.log(error);
+    return NextResponse.json(
+      {
+        message: "Invalid credentials",
+      },
+      {
+        status: 401,
+      }
+    );
+  }
 }

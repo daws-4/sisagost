@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 export async function POST(request: any, { params }: { params: { id: any } }) {
-    const { fecha_contrato, id, ci_cliente, estatus_, id_cuenta, plan_contratado, telefono_cliente, nodo, empresa_contratista, fecha_instalacion } = await request.json();
+    const { fecha_contrato, id, ci_cliente, estatus_, id_cuenta, plan_contratado, telefono_cliente, nodo, empresa_contratista, fecha_instalacion, contratista_asignado } = await request.json();
     
   const cookieStore = cookies();
   const token: any = cookieStore.get("TokenLogin");
@@ -26,7 +26,7 @@ export async function POST(request: any, { params }: { params: { id: any } }) {
 
     // Paso 4: Creación del registro
   const result: object[] = await pool.query(`
-      INSERT INTO contratos (id, fecha_instalacion, fecha_contrato, ci_cliente, estatus_, id_cuenta, plan_contratado, telefono_cliente, nodo, empresa_contratista) VALUES ('${id}', '${fecha_contrato}', '${fecha_instalacion}', '${ci_cliente}', '${estatus_}', '${id_cuenta}', '${plan_contratado}', '${telefono_cliente}', '${nodo}', '${empresa_contratista}');
+      INSERT INTO contratos (id, fecha_instalacion, fecha_contrato, ci_cliente, estatus_, id_cuenta, plan_contratado, telefono_cliente, nodo, empresa_contratista, contratista_asignado) VALUES ('${id}', '${fecha_contrato}', '${fecha_instalacion}', '${ci_cliente}', '${estatus_}', '${id_cuenta}', '${plan_contratado}', '${telefono_cliente}', '${nodo}', '${empresa_contratista}', '${contratista_asignado}');
 `);
     console.log("funciona bien ", result);
 

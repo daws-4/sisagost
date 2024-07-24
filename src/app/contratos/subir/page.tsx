@@ -18,6 +18,8 @@ export default function Home({ params }: { params: { id: any } }) {
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [showErrorToast, setShowErrorToast] = useState(false);
   const [showErrorToastMessage, setShowErrorToastMessage] = useState("Error");
+  const [showSuccessToastMessage, setShowSuccessToastMessage] = useState("Registro exitoso");
+
 
   const router = useRouter();
 
@@ -69,10 +71,22 @@ export default function Home({ params }: { params: { id: any } }) {
            body: data,
          });
          console.log(response);
+         const responseData = await response.json();
+         console.log(responseData.message);
 
         if (response.status === 200) {
           setShowSuccessToast(true);
-        }
+        }else if (response.status === 400) {
+          setShowErrorToast(true);
+          setShowErrorToastMessage(responseData.message);}
+          else  if (response.status === 201) {
+          setShowSuccessToast(true);
+          setShowSuccessToastMessage(responseData.message);}
+          else if (response.status === 401) {
+          setShowErrorToast(true);
+          setShowErrorToastMessage(responseData.message);
+          }
+
       } catch (error: any) {
         if (error.response && error.response.status === 401) {
           setShowErrorToast(true);
@@ -95,7 +109,7 @@ export default function Home({ params }: { params: { id: any } }) {
       default:
         break;
     }
-    console.log(estatus_, contratista_asignado);
+    console.log(estatus_, empresa_contratista);
   };
 
   const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -132,7 +146,7 @@ export default function Home({ params }: { params: { id: any } }) {
         break;
     }
     console.log(
-      empresa_contratista,
+      contratista_asignado,
       id,
       id_cuenta,
       ci_cliente,
@@ -185,29 +199,29 @@ export default function Home({ params }: { params: { id: any } }) {
 
   useEffect(() => {
     if (showSuccessToast) {
-      toast.success("Registro Actualizado!", {
+      toast.success(showSuccessToastMessage, {
         position: "top-center",
         autoClose: 10000,
+        toastId: "success",
       });
 
       setTimeout(() => {
-        id ? router.push(`/contratos/${id}`) :
-        router.push(`/contratos`);
+        id ? router.push(`/contratos/${id}`) : router.push(`/contratos`);
         setShowSuccessToast(false);
       }, 4000);
     }
 
+  }, [showSuccessToast, showErrorToast, router]);
+  useEffect(() => {
     if (showErrorToast) {
       toast.error(showErrorToastMessage, {
         position: "top-center",
         className: "foo-bar",
         autoClose: 5000,
+        toastId: "error",
       });
-      setTimeout(()=>{
-        setShowErrorToast(true);
-      },1000)
     }
-  }, [showSuccessToast, showErrorToast, router]);
+  }, [ showErrorToast, router]);
 
   const fecha_contrato_date = new Date(fecha_contrato ?? "");
   const añoUTC = fecha_contrato_date.getUTCFullYear();
@@ -308,7 +322,6 @@ export default function Home({ params }: { params: { id: any } }) {
                       Contratista Asignado
                     </LabelCrud>
                     <InputCrud
-                      required={true}
                       onChange={handleChangeInput}
                       id="contratista_asignado"
                       type="text"
