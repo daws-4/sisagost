@@ -3,7 +3,6 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { parseString } from "xml2js";
-import * as fs from "fs";
 import path from "path";
 import { writeFile, readFile } from "fs/promises";
 
@@ -59,15 +58,19 @@ export async function POST(request: any) {
     const redFile = await readFile(filePath, { encoding: "utf8" });
     console.log("mi promesa");
     parseString(redFile, async (err: any, result: any) => {
+      console.log(
+        result.contratos.contrato[0].fecha_contrato,
+        result.contratos.contrato[1].fecha_contrato
+      );
       if (err) {
         console.error(err);
        queryres= 0
       }else{
-        console.log(query[0].id);
-        console.log(result.contratos.contrato[0].id);
         for (const item of query) {
           for (const contrato of result.contratos.contrato) {
             if (item.id == contrato.id[0]) {
+              
+            console.log(contrato.fecha_contrato[0]);
               console.log("ID duplicado encontrado");
               queryres = 2;
               itemId = item.id;
@@ -83,10 +86,13 @@ export async function POST(request: any) {
         }
         if (queryres==1){
           for (const contrato of result.contratos.contrato) {
-            console.log(contrato.id[0]);
+            console.log (result.contratos.contrato.fecha_contrato)
+
             const xmldb = await pool.query(
-              `INSERT INTO contratos SET (fecha_contrato, id, ci_cliente, estatus_, id_cuenta, plan_contratado, direccion_contrato, motivo_standby, fecha_instalacion, recursos_inventario_instalacion, observaciones_instalacion, contratista_asignado, telefono_cliente, nodo, empresa_contratista) VALUES ('${contrato.fecha_contrato[0]}','${contrato.id[0]}','${contrato.ci_cliente[0]}','${contrato.estatus_[0]}','${contrato.id_cuenta[0]}','${contrato.plan_contratado[0]}','${contrato.direccion_contrato[0]}','${contrato.motivo_standby[0]}','${contrato.fecha_instalacion[0]}','${contrato.recursos_inventario_instalacion[0]}','${contrato.observaciones_instalacion[0]}','${contrato.contratista_asignado[0]}','${contrato.telefono_cliente[0]}','${contrato.nodo[0]}','${contrato.empresa_contratista[0]}') `
+              `INSERT INTO contratos (fecha_contrato, id, ci_cliente, estatus_, id_cuenta, plan_contratado, direccion_contrato, motivo_standby, fecha_instalacion, recursos_inventario_instalacion, observaciones_instalacion, contratista_asignado, telefono_cliente, nodo, empresa_contratista) VALUES ('${contrato.fecha_contrato}','${contrato.id}','${contrato.ci_cliente}','${contrato.estatus_}','${contrato.id_cuenta}','${contrato.plan_contratado}','${contrato.direccion_contrato}','${contrato.motivo_standby}','${contrato.fecha_instalacion}','${contrato.recursos_inventario_instalacion}','${contrato.observaciones_instalacion}','${contrato.contratista_asignado}','${contrato.telefono_cliente}','${contrato.nodo}','${contrato.empresa_contratista}') `
+              
             );
+            console.log(xmldb);
           }
         }
       }

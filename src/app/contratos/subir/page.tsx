@@ -94,6 +94,40 @@ export default function Home({ params }: { params: { id: any } }) {
         }
       }
     };
+        const handleSubmitCsv = async (e: { preventDefault: () => void }) => {
+          e.preventDefault();
+          if (!csv) return;
+          try {
+            const data = new FormData();
+            data.set("file", csv);
+
+            const response = await fetch("/api/contratos/subir/csv", {
+              method: "POST",
+              body: data,
+            });
+            console.log(response);
+            const responseData = await response.json();
+            console.log(responseData.message);
+
+            if (response.status === 200) {
+              setShowSuccessToast(true);
+            } else if (response.status === 400) {
+              setShowErrorToast(true);
+              setShowErrorToastMessage(responseData.message);
+            } else if (response.status === 201) {
+              setShowSuccessToast(true);
+              setShowSuccessToastMessage(responseData.message);
+            } else if (response.status === 401) {
+              setShowErrorToast(true);
+              setShowErrorToastMessage(responseData.message);
+            }
+          } catch (error: any) {
+            if (error.response && error.response.status === 401) {
+              setShowErrorToast(true);
+              setShowErrorToastMessage(error.response.data.message);
+            }
+          }
+        };
 
 
 
@@ -450,9 +484,7 @@ export default function Home({ params }: { params: { id: any } }) {
               <h3 className="text-3xl pb-4 font-bold dark:text-white">
                 Subir Contratos XML
               </h3>
-              <FormCrud
-                onSubmit={handleSubmitXml}
-              >
+              <FormCrud onSubmit={handleSubmitXml}>
                 <div className="flex flex-col">
                   <div className="sm:w-72 w-44">
                     <InputCrud
@@ -482,10 +514,18 @@ export default function Home({ params }: { params: { id: any } }) {
               <h3 className="text-3xl pb-4 font-bold dark:text-white">
                 Subir Contratos CSV
               </h3>
-              <FormCrud>
+              <FormCrud onSubmit={handleSubmitCsv}>
                 <div className="flex flex-col">
                   <div className="sm:w-72 w-44">
-                    <InputCrud type="file" />
+                    <InputCrud
+                      type="file"
+                      onChange={(e) => {
+                        if (e.target.files) {
+                          setCsv(e.target.files[0]);
+                          console.log(e.target.files[0]);
+                        }
+                      }}
+                    />
                   </div>
                   <div className="ml-8 mb-6 mt-6 flex items-center justify-between">
                     <button

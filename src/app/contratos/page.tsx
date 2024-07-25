@@ -171,12 +171,13 @@ export default function Home() {
       name: "Fecha del Contrato",
       selector: (row: any) => row.fecha_contrato,
       sortable: true,
-      cell: (row: any) => (
-        <Link href={`/contratos/${row.id}`}>
-          {" "}
-          {new Date(row.fecha_contrato).toLocaleDateString()}
-        </Link>
-      ),
+      cell: (row: any) => {
+        return (
+           <Link href={`/contratos/${row.id}`}>
+            {new Date(row.fecha_contrato).toLocaleDateString()}
+          </Link>
+        );
+    },
     },
     {
       name: "ID de la ONT",
@@ -218,7 +219,7 @@ export default function Home() {
       sortable: true,
       cell: (row: any) => {
         return (
-          <Link href={`/contratos/${row.id}`}>{row.contratista_asignado}</Link>
+          <Link href={`/contratos/${row.id}`}><p>{row.contratista_asignado}</p></Link>
         );
       },
     },
@@ -263,6 +264,22 @@ export default function Home() {
      selectAllRowsItem: true,
      selectAllRowsItemText: "Todas",
    };
+
+   //estado de la selección de la tabla
+       const [selectedRows, setSelectedRows] = useState(false);
+       const [toggledClearRows, setToggleClearRows] = useState(false);
+
+        
+
+       const handleChangeTable = ({ selectedRows }: { selectedRows: any }) => {
+         setSelectedRows(selectedRows);
+         console.log(selectedRows);
+       };
+
+       // Toggle the state so React Data Table changes to clearSelectedRows are triggered
+       const handleClearRows = () => {
+         setToggleClearRows(!toggledClearRows);
+       };
 
    const logout = async () => {
      try {
@@ -394,6 +411,7 @@ export default function Home() {
       </div>
 
       <div className=" md:px-20 px-5 z-10 ">
+        <button onClick={handleClearRows}>Clear Selected Rows</button>
         <DataTable
           title="Contratos"
           columns={columns}
@@ -403,9 +421,11 @@ export default function Home() {
           progressPending={loading}
           noDataComponent={"Loading..."}
           striped
+          selectableRows
+          onSelectedRowsChange={handleChangeTable}
+          clearSelectedRows={toggledClearRows}
           paginationComponentOptions={paginationComponentOptions}
           paginationPerPage={20}
-          onSelectedRowsChange={(data) => console.log(data)}
         />
       </div>
     </div>

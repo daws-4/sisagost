@@ -20,6 +20,9 @@ import axios from "axios";
 export default function Home({ params }: { params: { id: any } }) {
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [showErrorToast, setShowErrorToast] = useState(false);
+  const [showErrorToastMessage, setShowErrorToastMessage] = useState("Error");
+  const [showSuccessToastMessage, setShowSuccessToastMessage] =
+    useState("Registro exitoso");
 
   const router = useRouter();
 
@@ -56,8 +59,11 @@ export default function Home({ params }: { params: { id: any } }) {
       try {
         const finished = await axios.get(`/contratos/${params.id}/finish`);
         console.log(finished);
+        const responseData = finished.data;
+        console.log(responseData.message);
         if (finished.status === 200) {
           setShowSuccessToast(true);
+          setShowSuccessToastMessage(responseData.message);
           setTimeout(() => {
            window.location.reload();
           }, 4000);
@@ -79,8 +85,11 @@ export default function Home({ params }: { params: { id: any } }) {
       try {
         const deleted = await axios.get(`/contratos/${params.id}/delete`);
         console.log(deleted);
+        const responseData = deleted.data;
+         console.log(responseData.message);
         if (deleted.status === 200) {
           setShowSuccessToast(true);
+          setShowSuccessToastMessage(responseData.message);
         }
       } catch (error: any) {
         if (error.deleted && error.deleted.status === 401) {
@@ -220,7 +229,7 @@ export default function Home({ params }: { params: { id: any } }) {
 
   useEffect(() => {
     if (showSuccessToast) {
-      toast.success("Registro Eliminado!", {
+      toast.success(showSuccessToastMessage, {
         position: "top-center",
         autoClose: 10000,
       });
@@ -233,7 +242,7 @@ export default function Home({ params }: { params: { id: any } }) {
     }
 
     if (showErrorToast) {
-      toast.error("Error", {
+      toast.error(showErrorToastMessage , {
         position: "top-center",
         className: "foo-bar",
         autoClose: false,

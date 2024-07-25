@@ -14,7 +14,7 @@ export async function GET(req: any, { params }: { params: { id: any } }) {
     );
 
     return NextResponse.json(
-      { message: "deleted succesfuly" },
+      { message: "Contrato FINALIZADO correctamente" },
       { status: 200 }
     );
   } catch (error) {
