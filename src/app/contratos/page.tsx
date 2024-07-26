@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   Secondtitle,
   InputFilter,
@@ -12,13 +12,10 @@ import HeaderNav from "../../components/static/HeaderNav";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
-import axios from 'axios'
-
-
+import axios from "axios";
 
 export default function Home() {
-
-  const router = useRouter()
+  const router = useRouter();
   //fecth de la data
   //estados de los filtros
 
@@ -37,7 +34,7 @@ export default function Home() {
   const [records, setRecords] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [now, setNow] = useState<any[]>([]);
-  const [user, setUser]= useState<any>({})
+  const [user, setUser] = useState<any>({});
 
   useEffect(() => {
     const getUser = async () => {
@@ -47,27 +44,26 @@ export default function Home() {
     getUser();
   }, []);
 
-     useEffect(() => {
-       const getNow = async () => {
-         const horaActual = await axios.get("/api/now");
-         setNow(horaActual.data);
-       };
-       getNow();
-     }, []);
+  useEffect(() => {
+    const getNow = async () => {
+      const horaActual = await axios.get("/api/now");
+      setNow(horaActual.data);
+    };
+    getNow();
+  }, []);
 
-    useEffect(() => {
-      fetch("/api/contratos")
-        .then((res) => res.json())
-        .then(setData);
-    }, []);
-    useEffect(() => {
-      const timeout = setTimeout(() => {
-        setRecords(data);
-        setLoading(false);
-      }, 1000);
-      return () => clearTimeout(timeout);
-    }, [data]);
-
+  useEffect(() => {
+    fetch("/api/contratos")
+      .then((res) => res.json())
+      .then(setData);
+  }, []);
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setRecords(data);
+      setLoading(false);
+    }, 1000);
+    return () => clearTimeout(timeout);
+  }, [data]);
 
   const desdeDate = new Date(filterDesde);
   const hastaDate = new Date(filterHasta);
@@ -104,7 +100,9 @@ export default function Home() {
           String(record.fecha_instalacion)
             .toLocaleLowerCase()
             .includes(filterFechaInstalacion.toLocaleLowerCase()) &&
-          String(record.nodo).toLocaleLowerCase().includes(filterNodo.toLowerCase())
+          String(record.nodo)
+            .toLocaleLowerCase()
+            .includes(filterNodo.toLowerCase())
         );
       }
     });
@@ -155,17 +153,16 @@ export default function Home() {
     setFechaInstalacion(undefined);
     setNodo(undefined);
   }
-  
-  const mapedRecords = records.map((item, index) => {
-    return item = Object.assign({index: `${index+1}`}, item)
 
-   });
+  const mapedRecords = records.map((item, index) => {
+    return (item = Object.assign({ index: `${index + 1}` }, item));
+  });
   const columns = [
     {
-      name: '#',
-      selector: (row:any,) => row.index,
-      cell: (row:any,) => (<p>{row.index}</p>),
-      maxWidth: '0',
+      name: "#",
+      selector: (row: any) => row.index,
+      cell: (row: any) => <p>{row.index}</p>,
+      maxWidth: "0",
     },
     {
       name: "Fecha del Contrato",
@@ -173,11 +170,11 @@ export default function Home() {
       sortable: true,
       cell: (row: any) => {
         return (
-           <Link href={`/contratos/${row.id}`}>
+          <Link href={`/contratos/${row.id}`}>
             {new Date(row.fecha_contrato).toLocaleDateString()}
           </Link>
         );
-    },
+      },
     },
     {
       name: "ID de la ONT",
@@ -219,76 +216,74 @@ export default function Home() {
       sortable: true,
       cell: (row: any) => {
         return (
-          <Link href={`/contratos/${row.id}`}><p>{row.contratista_asignado}</p></Link>
+          <Link href={`/contratos/${row.id}`}>
+            <p>{row.contratista_asignado}</p>
+          </Link>
         );
       },
     },
   ];
 
-
   const estadisticData: any[] = [
-          {
-            activo: data.filter((record)=> record.estatus_ < 2).length,
-            instalado: data.filter((record) => record.estatus_ === 1).length,
-            finalizado: data.filter((record) => record.estatus_ === 2).length,
-            agendado: data.filter((record) => record.estatus_ === 0).length,
-            
-          },
-       
-  ]
+    {
+      activo: data.filter((record) => record.estatus_ < 2).length,
+      instalado: data.filter((record) => record.estatus_ === 1).length,
+      finalizado: data.filter((record) => record.estatus_ === 2).length,
+      agendado: data.filter((record) => record.estatus_ === 0).length,
+    },
+  ];
 
+  const estadisticColumns = [
+    {
+      name: "Contratos Activos",
+      selector: (row: any) => row.activo,
+    },
+    {
+      name: "Contratos Agendados",
+      selector: (row: any) => row.agendado,
+    },
+    {
+      name: "Contratos Instalados",
+      selector: (row: any) => row.instalado,
+    },
+    {
+      name: "Contratos Finalizados",
+      selector: (row: any) => row.finalizado,
+    },
+  ];
+  const title = `Contratos ${now}`;
 
-   const estadisticColumns = [
-     {
-       name: "Contratos Activos",
-       selector: (row: any) => row.activo,
-     },
-     {
-       name: "Contratos Agendados",
-       selector: (row: any) => row.agendado,
-     },
-     {
-       name: "Contratos Instalados",
-       selector: (row: any) => row.instalado,
-     },
-     {
-       name: "Contratos Finalizados",
-       selector: (row: any) => row.finalizado,
-     },
-   ];
-   const title = `Contratos ${now}`;
+  const paginationComponentOptions = {
+    rowsPerPageText: "Filas por página",
+    rangeSeparatorText: "de",
+    selectAllRowsItem: true,
+    selectAllRowsItemText: "Todas",
+  };
 
-   const paginationComponentOptions = {
-     rowsPerPageText: "Filas por página",
-     rangeSeparatorText: "de",
-     selectAllRowsItem: true,
-     selectAllRowsItemText: "Todas",
-   };
+  //estado de la selección de la tabla
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [toggledClearRows, setToggleClearRows] = useState(false);
 
-   //estado de la selección de la tabla
-       const [selectedRows, setSelectedRows] = useState(false);
-       const [toggledClearRows, setToggleClearRows] = useState(false);
+  const handleChangeTable = ({ selectedRows }: { selectedRows: any }) => {
+    setSelectedRows(selectedRows);
+  };
 
-        
+  // Toggle the state so React Data Table changes to clearSelectedRows are triggered
+  const handleClearRows = () => {
+    selectedRows.forEach((row: any, index: any) => {
+      console.log(`Posición ${index}:`, row.id);
+    });
+    setToggleClearRows(!toggledClearRows);
+  };
 
-       const handleChangeTable = ({ selectedRows }: { selectedRows: any }) => {
-         setSelectedRows(selectedRows);
-         console.log(selectedRows);
-       };
-
-       // Toggle the state so React Data Table changes to clearSelectedRows are triggered
-       const handleClearRows = () => {
-         setToggleClearRows(!toggledClearRows);
-       };
-
-   const logout = async () => {
-     try {
-       const res = await axios.get("/api/auth/logout");
-     } catch (error:any) {
-       console.error(error.message);
-     }
-     router.push("/");
-   };
+  const logout = async () => {
+    try {
+      const res = await axios.get("/api/auth/logout");
+    } catch (error: any) {
+      console.error(error.message);
+    }
+    router.push("/");
+  };
 
   return (
     <div>
