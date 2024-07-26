@@ -6,6 +6,7 @@ import { NextResponse } from "next/server";
 export async function POST(request: any, { params }: { params: { id: any } }) {
     const { fecha_contrato, id, ci_cliente, estatus_, id_cuenta, plan_contratado, telefono_cliente, nodo, empresa_contratista, fecha_instalacion, contratista_asignado } = await request.json();
     
+    
   const cookieStore = cookies();
   const token: any = cookieStore.get("TokenLogin");
 

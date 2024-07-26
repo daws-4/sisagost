@@ -7,6 +7,8 @@ import {
   LabelFilter,
   LabelButton,
 } from "../../components/ui";
+import { toast, ToastContainer } from "react-toastify";
+import "../../../node_modules/react-toastify/dist/ReactToastify.css";
 import DataTable from "react-data-table-component";
 import HeaderNav from "../../components/static/HeaderNav";
 import Link from "next/link";
@@ -15,6 +17,11 @@ import React from "react";
 import axios from "axios";
 
 export default function Home() {
+ const [showSuccessToast, setShowSuccessToast] = useState(false);
+ const [showErrorToast, setShowErrorToast] = useState(false);
+ const [showErrorToastMessage, setShowErrorToastMessage] = useState("Error");
+ const [showSuccessToastMessage, setShowSuccessToastMessage] = useState("Registro exitoso");
+
   const router = useRouter();
   //fecth de la data
   //estados de los filtros
@@ -53,9 +60,10 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    fetch("/api/contratos")
-      .then((res) => res.json())
-      .then(setData);
+
+  fetch("/api/contratos")
+     .then((res) => res.json())
+     .then(setData);
   }, []);
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -261,13 +269,32 @@ export default function Home() {
   };
 
   //estado de la selección de la tabla
-  const [selectedRows, setSelectedRows] = useState([]);
+  const [selectedRows, setSelectedRows] = useState<any>([]);
   const [toggledClearRows, setToggleClearRows] = useState(false);
+  const [instalador, setInstalador] = useState<any>('')
+  const [verifyInstaller, setVerifyInstaller] = useState<any>(0)
+  const [verifyFinished, setVerifyFinished] = useState<any>(0)
 
   const handleChangeTable = ({ selectedRows }: { selectedRows: any }) => {
     setSelectedRows(selectedRows);
+    // verificar que las condiciones se cumplen
+    for (const rows of selectedRows) {
+      console.log(rows);
+      if ((rows.contratista_asignado != 0)) {
+        setVerifyInstaller(1);
+        console.log('contrato seleccionado sin instalador asignado');
+        break;
+      }else{
+        setVerifyInstaller(0);}
+        if ((rows.estatus_ == 2)) {
+          setVerifyFinished(1);
+          console.log('contrato seleccionado finalizado');
+          break;
+        }else{
+          setVerifyFinished(0)
+        }
+    }
   };
-
   // Toggle the state so React Data Table changes to clearSelectedRows are triggered
   const handleClearRows = () => {
     selectedRows.forEach((row: any, index: any) => {
@@ -275,6 +302,95 @@ export default function Home() {
     });
     setToggleClearRows(!toggledClearRows);
   };
+  const handleDeleteRows = async () => {
+    const deletingRows = selectedRows.map((row: any) => row.id);
+    console.log(deletingRows)
+    try {
+      const response = await axios.post("/api/contratos/delete", deletingRows);
+      console.log(response);
+      if (response.status === 200) {
+        toast.dismiss();
+        setShowSuccessToast( true);
+        setShowSuccessToastMessage(response.data.message);
+      }else if (response.status === 401) {
+        toast.dismiss()
+        setShowErrorToast(true);
+        setShowErrorToastMessage(response.data.message);}
+    } catch (error: any) {
+      console.log(error)
+      toast.dismiss();
+      setShowErrorToast(true);
+      setShowErrorToastMessage(error.response.data.message);
+    }
+    setToggleClearRows(!toggledClearRows);
+  }
+  const contextActions = useMemo (() => {
+    const handleDelete = () => {
+      if (
+        selectedRows.length < 2 ? window.confirm(
+          `Estás seguro de que quieres ELIMINAR ${selectedRows.length} contrato?`): window.confirm(
+          `Estás seguro de que quieres ELIMINAR ${selectedRows.length} contratos?`)
+        )
+       {
+        handleDeleteRows();
+      } 
+    }
+        const handleFinish = () => {
+          if (
+            selectedRows.length < 2
+              ? window.confirm(
+                  `Estás seguro de que quieres FINALIZAR ${selectedRows.length} contrato?`
+                )
+              : window.confirm(
+                  `Estás seguro de que quieres FINALIZAR ${selectedRows.length} contratos?`
+                )
+          ) {
+            handleClearRows();
+          }
+        };
+
+        const AsignarInstaladores = (e: { preventDefault: () => void }) => {
+          e.preventDefault();
+          if (
+            selectedRows.length < 2
+              ? window.confirm(
+                  `Estás seguro de que quieres ASIGNAR ${selectedRows.length} contrato al INSTALADOR ${instalador}?`
+                )
+              : window.confirm(
+                  `Estás seguro de que quieres ASIGNAR ${selectedRows.length} contratos al INSTALADOR ${instalador}?`
+                )
+          ) {
+            handleClearRows();
+          }
+        };
+    return (
+      <div className="flex flex-row">
+        {verifyInstaller ? (
+          <p></p>
+        ) : (
+          <form onSubmit={AsignarInstaladores} className="mx-4">
+            <InputFilter
+              type="text"
+              id="ci_instalador"
+              name="ci_instalador"
+              onChange={(event) => setInstalador(event.target.value)}
+            />
+            <button type="submit">Asignar</button>
+          </form>
+        )}
+        <button onClick={handleDelete} className="mx-4">
+          Eliminar
+        </button>
+        {verifyFinished ? (
+          <p></p>
+        ) : (
+          <button onClick={handleFinish} className="mx-4">
+            Finalizar
+          </button>
+        )}
+      </div>
+    ); 
+  }, [ selectedRows, handleClearRows, handleDeleteRows, instalador]);
 
   const logout = async () => {
     try {
@@ -285,8 +401,33 @@ export default function Home() {
     router.push("/");
   };
 
+   useEffect(() => {
+    if (showSuccessToast) {
+      toast.success(showSuccessToastMessage, {
+        position: "top-center",
+        autoClose: 10000,
+        toastId: "success",
+      });
+      setTimeout(() => {
+        location.reload()
+        setShowSuccessToast(false);
+      }, 4000);
+    }
+
+  }, [showSuccessToast, showErrorToast, router]);
+  useEffect(() => {
+    if (showErrorToast) {
+      toast.error(showErrorToastMessage, {
+        position: "top-center",
+        className: "foo-bar",
+        autoClose: false,
+        toastId: "error",
+      });
+    }})
+
   return (
     <div>
+      <ToastContainer />
       <HeaderNav>
         <ul>
           <li>
@@ -406,7 +547,6 @@ export default function Home() {
       </div>
 
       <div className=" md:px-20 px-5 z-10 ">
-        <button onClick={handleClearRows}>Clear Selected Rows</button>
         <DataTable
           title="Contratos"
           columns={columns}
@@ -417,12 +557,14 @@ export default function Home() {
           noDataComponent={"Loading..."}
           striped
           selectableRows
+          contextActions={contextActions}
           onSelectedRowsChange={handleChangeTable}
           clearSelectedRows={toggledClearRows}
           paginationComponentOptions={paginationComponentOptions}
           paginationPerPage={20}
         />
       </div>
+      <ToastContainer />
     </div>
   );
 }
