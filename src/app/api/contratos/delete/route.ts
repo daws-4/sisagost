@@ -10,8 +10,6 @@ export async function POST(request:any) {
     const deletingRows = await request.json()
   try {
     jwt.verify(token.value, "secret") as JwtPayload;
-    const deletingRowsString = deletingRows.join(",");
-    console.log(deletingRowsString);
     const result: object[] = await pool.query(
       `DELETE FROM contratos WHERE id IN (${deletingRows})`
     );

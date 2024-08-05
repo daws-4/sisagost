@@ -18,15 +18,15 @@ import React from "react";
 import axios from "axios";
 
 export default function Home() {
-  //toast
-  const [showSuccessToast, setShowSuccessToast] = useState(false);
-  const [showErrorToast, setShowErrorToast] = useState(false);
-  const [showErrorToastMessage, setShowErrorToastMessage] = useState("Error");
-  const [showSuccessToastMessage, setShowSuccessToastMessage] =
-    useState("Registro exitoso");
+
+  //toast 
+ const [showSuccessToast, setShowSuccessToast] = useState(false);
+ const [showErrorToast, setShowErrorToast] = useState(false);
+ const [showErrorToastMessage, setShowErrorToastMessage] = useState("Error");
+ const [showSuccessToastMessage, setShowSuccessToastMessage] = useState("Registro exitoso");
 
   const router = useRouter();
-
+  //fecth de la data
   //estados de los filtros
 
   const [filterId, setFilterId] = useState("");
@@ -45,9 +45,9 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [now, setNow] = useState<any[]>([]);
   const [user, setUser] = useState<any>({});
-
+  
   // requerir los datos de la api
-  //fecth de la data
+
   useEffect(() => {
     const getUser = async () => {
       const usuario = await axios.get("/api/auth/admin");
@@ -65,9 +65,10 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    fetch("/api/contratos")
-      .then((res) => res.json())
-      .then(setData);
+
+  fetch("/api/contratos")
+     .then((res) => res.json())
+     .then(setData);
   }, []);
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -275,30 +276,29 @@ export default function Home() {
   //estado de la selección de la tabla
   const [selectedRows, setSelectedRows] = useState<any>([]);
   const [toggledClearRows, setToggleClearRows] = useState(false);
-  const [instalador, setInstalador] = useState<any>("");
-  const [verifyInstaller, setVerifyInstaller] = useState<any>(0);
-  const [verifyFinished, setVerifyFinished] = useState<any>(0);
+  const [instalador, setInstalador] = useState<any>('')
+  const [verifyInstaller, setVerifyInstaller] = useState<any>(0)
+  const [verifyFinished, setVerifyFinished] = useState<any>(0)
 
   const handleChangeTable = ({ selectedRows }: { selectedRows: any }) => {
     setSelectedRows(selectedRows);
     // verificar que las condiciones se cumplen
     for (const rows of selectedRows) {
-      if (rows.contratista_asignado != 0) {
+      if ((rows.contratista_asignado != 0)) {
         setVerifyInstaller(1);
         break;
-      } else {
-        setVerifyInstaller(0);
-      }
-      console.log("contrato seleccionado sin instalador asignado");
+      }else{
+        setVerifyInstaller(0);}
+        console.log("contrato seleccionado sin instalador asignado");
     }
-    for (const rows of selectedRows) {
-      if (rows.estatus_ === 2) {
-        setVerifyFinished(1);
-        console.log("contrato seleccionado finalizado");
-        break;
-      } else {
-        setVerifyFinished(0);
-      }
+    for(const rows of selectedRows){
+            if (rows.estatus_ === 2) {
+              setVerifyFinished(1);
+              console.log("contrato seleccionado finalizado");
+              break;
+            } else {
+              setVerifyFinished(0);
+            }
     }
   };
   // cambiar estados para poder actualizar los registros de forma masiva
@@ -310,119 +310,118 @@ export default function Home() {
   };
   const handleDeleteRows = async () => {
     const deletingRows = selectedRows.map((row: any) => row.id);
-    console.log(deletingRows);
+    console.log(deletingRows)
     try {
       const response = await axios.post("/api/contratos/delete", deletingRows);
       console.log(response);
       if (response.status === 200) {
         toast.dismiss();
-        setShowSuccessToast(true);
+        setShowSuccessToast( true);
         setShowSuccessToastMessage(response.data.message);
-      } else if (response.status === 401) {
-        toast.dismiss();
+      }else if (response.status === 401) {
+        toast.dismiss()
         setShowErrorToast(true);
-        setShowErrorToastMessage(response.data.message);
-      }
+        setShowErrorToastMessage(response.data.message);}
     } catch (error: any) {
-      console.log(error);
+      console.log(error)
       toast.dismiss();
       setShowErrorToast(true);
       setShowErrorToastMessage(error.response.data.message);
     }
     setToggleClearRows(!toggledClearRows);
-  };
-  const handleFinishRows = async () => {
-    const finishRows = selectedRows.map((row: any) => row.id);
-    console.log(finishRows);
-    try {
-      const response = await axios.post("/api/contratos/finish", finishRows);
-      console.log(response);
-      if (response.status === 200) {
-        toast.dismiss();
-        setShowSuccessToast(true);
-        setShowSuccessToastMessage(response.data.message);
-      } else if (response.status === 401) {
-        toast.dismiss();
-        setShowErrorToast(true);
-        setShowErrorToastMessage(response.data.message);
-      }
-    } catch (error: any) {
-      console.log(error);
-      toast.dismiss();
-      setShowErrorToast(true);
-      setShowErrorToastMessage(error.response.data.message);
-    }
-    setToggleClearRows(!toggledClearRows);
-  };
-  const handleUpdateRows = async () => {
-    const updatingRows = selectedRows.map((row: any) => row.id);
-    console.log(updatingRows);
-    const instaladorAsig = instalador;
-    try {
-      const response = await axios.post("/api/contratos/update", {
-        updatingRows,
-        instaladorAsig,
-      });
-      console.log(response);
-      if (response.status === 200) {
-        toast.dismiss();
-        setShowSuccessToast(true);
-        setShowSuccessToastMessage(response.data.message);
-      } else if (response.status === 401) {
+  }
+    const handleFinishRows = async () => {
+      const finishRows = selectedRows.map((row: any) => row.id);
+      console.log(finishRows);
+      try {
+        const response = await axios.post(
+          "/api/contratos/finish",
+          finishRows
+        );
+        console.log(response);
+        if (response.status === 200) {
+          toast.dismiss();
+          setShowSuccessToast(true);
+          setShowSuccessToastMessage(response.data.message);
+        } else if (response.status === 401) {
+          toast.dismiss();
+          setShowErrorToast(true);
+          setShowErrorToastMessage(response.data.message);
+        }
+      } catch (error: any) {
+        console.log(error);
         toast.dismiss();
         setShowErrorToast(true);
-        setShowErrorToastMessage(response.data.message);
+        setShowErrorToastMessage(error.response.data.message);
       }
-    } catch (error: any) {
-      console.log(error);
-      toast.dismiss();
-      setShowErrorToast(true);
-      setShowErrorToastMessage(error.response.data.message);
-    }
-    setToggleClearRows(!toggledClearRows);
-  };
-  const contextActions = useMemo(() => {
+      setToggleClearRows(!toggledClearRows);
+    };
+      const handleUpdateRows = async () => {
+        const updatingRows = selectedRows.map((row: any) => row.id);
+        console.log(updatingRows);
+        const instaladorAsig = instalador;
+        try {
+          const response = await axios.post("/api/contratos/update", {
+            updatingRows,
+            instaladorAsig,
+          });
+          console.log(response);
+          if (response.status === 200) {
+            toast.dismiss();
+            setShowSuccessToast(true);
+            setShowSuccessToastMessage(response.data.message);
+          } else if (response.status === 401) {
+            toast.dismiss();
+            setShowErrorToast(true);
+            setShowErrorToastMessage(response.data.message);
+          }
+        } catch (error: any) {
+          console.log(error);
+          toast.dismiss();
+          setShowErrorToast(true);
+          setShowErrorToastMessage(error.response.data.message);
+        }
+        setToggleClearRows(!toggledClearRows);
+      };
+  const contextActions = useMemo (() => {
     const handleDelete = () => {
       if (
-        selectedRows.length < 2
-          ? window.confirm(
-              `Estás seguro de que quieres ELIMINAR ${selectedRows.length} contrato?`
-            )
-          : window.confirm(
-              `Estás seguro de que quieres ELIMINAR ${selectedRows.length} contratos?`
-            )
-      ) {
+        selectedRows.length < 2 ? window.confirm(
+          `Estás seguro de que quieres ELIMINAR ${selectedRows.length} contrato?`): window.confirm(
+          `Estás seguro de que quieres ELIMINAR ${selectedRows.length} contratos?`)
+        )
+       {
         handleDeleteRows();
-      }
-    };
-    const handleFinish = () => {
-      if (
-        selectedRows.length < 2
-          ? window.confirm(
-              `Estás seguro de que quieres FINALIZAR ${selectedRows.length} contrato?`
-            )
-          : window.confirm(
-              `Estás seguro de que quieres FINALIZAR ${selectedRows.length} contratos?`
-            )
-      ) {
-        handleFinishRows();
-      }
-    };
+      } 
+    }
+        const handleFinish = () => {
+          if (
+            selectedRows.length < 2
+              ? window.confirm(
+                  `Estás seguro de que quieres FINALIZAR ${selectedRows.length} contrato?`
+                )
+              : window.confirm(
+                  `Estás seguro de que quieres FINALIZAR ${selectedRows.length} contratos?`
+                )
+          ) {
+            handleFinishRows();
+          }
+        };
 
-    const AsignarInstaladores = (e: { preventDefault: () => void }) => {
-      e.preventDefault();
-      if (
-        selectedRows.length < 2
-          ? window.confirm(
-              `Estás seguro de que quieres ASIGNAR ${selectedRows.length} contrato al INSTALADOR ${instalador}?`
-            )
-          : window.confirm(
-              `Estás seguro de que quieres ASIGNAR ${selectedRows.length} contratos al INSTALADOR ${instalador}?`
-            )
-      ) {
-        handleUpdateRows();
-      }
-    };
+        const AsignarInstaladores = (e: { preventDefault: () => void }) => {
+          e.preventDefault();
+          if (
+            selectedRows.length < 2
+              ? window.confirm(
+                  `Estás seguro de que quieres ASIGNAR ${selectedRows.length} contrato al INSTALADOR ${instalador}?`
+                )
+              : window.confirm(
+                  `Estás seguro de que quieres ASIGNAR ${selectedRows.length} contratos al INSTALADOR ${instalador}?`
+                )
+          ) {
+            handleUpdateRows();
+          }
+        };
     return (
       <div className="flex flex-row">
         {verifyInstaller ? (
@@ -449,90 +448,56 @@ export default function Home() {
           </button>
         )}
       </div>
-    );
-  }, [selectedRows, handleClearRows, handleDeleteRows, instalador]);
+    ); 
+  }, [ selectedRows, handleClearRows, handleDeleteRows, instalador]);
 
   //pdf
-  const date = new Date().toLocaleDateString("es-ES");
+    const date = new Date().toLocaleDateString("es-ES")
 
-  function createStatsPdf(divElement: any) {
+   function createStatsPdf(divElement: any){
     const doc = new jsPDF();
-    //contratos
-    const activo = data
-      .filter((record) => record.estatus_ < 2)
-      .length.toString();
-    const instalado = data
-      .filter((record) => record.estatus_ === 1)
-      .length.toString();
-    const finalizado = data
-      .filter((record) => record.estatus_ === 2)
-      .length.toString();
-    const agendado = data
-      .filter((record) => record.estatus_ === 0)
-      .length.toString();
+    //contratos 
+       const activo = data.filter((record) => record.estatus_ < 2).length.toString();
+       const instalado = data.filter((record) => record.estatus_ === 1).length.toString();
+       const finalizado = data.filter((record) => record.estatus_ === 2).length.toString();
+       const agendado = data.filter((record) => record.estatus_ === 0).length.toString();
 
     //empresas
 
-    const activo_servitel = data.filter( (record) => record.estatus_ < 2 && record.empresa_contratista === 1)
-      .length.toString();
-    const instalado_servitel = data
-      .filter(
-        (record) => record.estatus_ === 1 && record.empresa_contratista === 1
-      )
-      .length.toString();
-    const finalizado_servitel = data
-      .filter(
-        (record) => record.estatus_ === 2 && record.empresa_contratista === 1
-      )
-      .length.toString();
-    const agendado_servitel = data
-      .filter(
-        (record) => record.estatus_ === 0 && record.empresa_contratista === 1
-      )
-      .length.toString();
+       const activo_servitel = data.filter((record) => record.estatus_ < 2 && record.empresa_contratista === 1).length.toString();
+       const instalado_servitel = data.filter((record) => record.estatus_ === 1 && record.empresa_contratista === 1).length.toString();
+       const finalizado_servitel = data.filter((record) => record.estatus_ === 2 && record.empresa_contratista === 1).length.toString();
+       const agendado_servitel = data.filter((record) => record.estatus_ === 0 && record.empresa_contratista === 1).length.toString();
 
-    const activo_hetelca = data
-      .filter(
-        (record) => record.estatus_ < 2 && record.empresa_contratista === 0
-      )
-      .length.toString();
-    const instalado_hetelca = data
-      .filter(
-        (record) => record.estatus_ === 1 && record.empresa_contratista === 0
-      )
-      .length.toString();
-    const finalizado_hetelca = data
-      .filter(
-        (record) => record.estatus_ === 2 && record.empresa_contratista === 0
-      )
-      .length.toString();
-    const agendado_hetelca = data
-      .filter(
-        (record) => record.estatus_ === 0 && record.empresa_contratista === 0
-      )
-      .length.toString();
+       const activo_hetelca = data.filter((record) => record.estatus_ < 2 && record.empresa_contratista === 0).length.toString();
+       const instalado_hetelca = data.filter((record) => record.estatus_ === 1 && record.empresa_contratista === 0).length.toString();
+       const finalizado_hetelca = data.filter((record) => record.estatus_ === 2 && record.empresa_contratista === 0).length.toString();
+       const agendado_hetelca = data.filter((record) => record.estatus_ === 0 && record.empresa_contratista === 0).length.toString();
 
-    doc.text(`Contratos ${now}`, 60, 20);
+      doc.text(`Contratos ${now}`, 60, 20);
 
-    //show contratos
-    doc.text(`Contratos Activos: ${activo}`, 30, 40);
-    doc.text(`Contratos Instalados: ${instalado}`, 30, 50);
-    doc.text(`Contratos Finalizados: ${finalizado}`, 30, 60);
-    doc.text(`Contratos Agendados: ${agendado}`, 30, 70);
+      //show contratos
+      doc.text(`Contratos Activos: ${activo}`, 30, 40)
+      doc.text(`Contratos Instalados: ${instalado}`, 30, 50);
+      doc.text(`Contratos Finalizados: ${finalizado}`, 30, 60);
+      doc.text(`Contratos Agendados: ${agendado}`, 30, 70)
 
-    //show empresas
-    doc.text("Servitel", 20, 90);
-    doc.text(`Contratos Activos: ${activo_servitel}`, 30, 100);
-    doc.text(`Contratos Instalados: ${instalado_servitel}`, 30, 110);
-    doc.text(`Contratos Finalizado: ${finalizado_servitel}`, 30, 120);
-    doc.text(`Contratos Agendados: ${agendado_servitel}`, 30, 130);
-    doc.text("Hetelca", 20, 150);
-    doc.text(`Contratos Activos: ${activo_hetelca}`, 30, 160);
-    doc.text(`Contratos Instalados: ${instalado_hetelca}`, 30, 170);
-    doc.text(`Contratos Finalizado: ${finalizado_hetelca}`, 30, 180);
-    doc.text(`Contratos Agendados: ${agendado_hetelca}`, 30, 190);
+      //show empresas
+      doc.text('Servitel', 20, 90)
+      doc.text(`Contratos Activos: ${activo_servitel}`, 30, 100);
+      doc.text(`Contratos Instalados: ${instalado_servitel}`, 30, 110);
+      doc.text(`Contratos Finalizado: ${finalizado_servitel}`, 30, 120);
+      doc.text(`Contratos Agendados: ${agendado_servitel}`, 30, 130);
+      doc.text("Hetelca", 20, 150);
+      doc.text(`Contratos Activos: ${activo_hetelca}`, 30, 160);
+      doc.text(`Contratos Instalados: ${instalado_hetelca}`, 30, 170);
+      doc.text(`Contratos Finalizado: ${finalizado_hetelca}`, 30, 180);
+      doc.text(`Contratos Agendados: ${agendado_hetelca}`, 30, 190);
 
-    doc.save(`Estadísticas_Sisagost_${date}.pdf`);
+
+
+
+      doc.save(`Estadísticas_Sisagost_${date}.pdf`);
   }
 
   //logout
@@ -545,8 +510,8 @@ export default function Home() {
     }
     router.push("/");
   };
-  // estados de los toast
-  useEffect(() => {
+// estados de los toast
+   useEffect(() => {
     if (showSuccessToast) {
       toast.success(showSuccessToastMessage, {
         position: "top-center",
@@ -554,10 +519,11 @@ export default function Home() {
         toastId: "success",
       });
       setTimeout(() => {
-        location.reload();
+        location.reload()
         setShowSuccessToast(false);
       }, 4000);
     }
+
   }, [showSuccessToast, showErrorToast, router]);
   useEffect(() => {
     if (showErrorToast) {
@@ -567,8 +533,7 @@ export default function Home() {
         autoClose: false,
         toastId: "error",
       });
-    }
-  });
+    }})
 
   return (
     <div>

@@ -7,15 +7,15 @@ export async function POST(request: any) {
   const cookieStore = cookies();
   const token: any = cookieStore.get("TokenLogin");
 
-  const deletingRows = await request.json();
+  const{ updatingRows, instaladorAsig} = await request.json();;
   try {
     jwt.verify(token.value, "secret") as JwtPayload;
     const result: object[] = await pool.query(
-      `UPDATE contratos SET estatus_ = '2' WHERE id IN (${deletingRows})`
+      `UPDATE contratos SET contratista_asignado = '${instaladorAsig}' WHERE id IN (${updatingRows})`
     );
     console.log(result);
     return NextResponse.json(
-      { message: `Se han finalizado ${deletingRows.length} contratos` },
+      { message: `Se han asignado ${updatingRows.length} contratos al instalador ${instaladorAsig}` },
       { status: 200 }
     );
   } catch (error) {

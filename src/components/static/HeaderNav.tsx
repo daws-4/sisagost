@@ -18,8 +18,8 @@ const HeaderNav = ({children}: {children: React.ReactNode}) => {
   // Array containing navigation items
   const navItems = [
     { id: 1, text: "Contratos", href: "/contratos" },
-    { id: 2, text: "Empresas", href: "/contratos" },
-    { id: 3, text: "Instaladores", href: "/contratos" },
+    { id: 2, text: "Empresas", href: "/empresas" },
+    { id: 3, text: "Instaladores", href: "/instaladores" },
     { id: 4, text: "Subir", href: "/contratos/subir" },
   ];
 
@@ -40,7 +40,7 @@ const HeaderNav = ({children}: {children: React.ReactNode}) => {
             </li>
           </Link>
         ))}
-        <li>
+        <li key={'unique'}>
           <button
             onClick={() => setOpenPanel(true)}
             className="p-4 hover:bg-[#00df9a] rounded-xl m-2 cursor-pointer duration-300 hover:text-black"

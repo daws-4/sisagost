@@ -18,7 +18,7 @@ import jsPDF from "jspdf";
 import React from "react";
 import axios from "axios";
 
-export default function Home({ params }: { params: { id: any } }) {
+export default function Home({ params }: { params: { idd: any } }) {
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [showErrorToast, setShowErrorToast] = useState(false);
   const [showErrorToastMessage, setShowErrorToastMessage] = useState("Error");
@@ -29,76 +29,11 @@ export default function Home({ params }: { params: { id: any } }) {
 
   //estados de la data
   const [data, setData] = useState<any[]>([]);
-  const [records, setRecords] = useState<any[]>([
-    {
-      ci_cliente: "",
-      contratista_asignado: "",
-      direccion_contrato: "",
-      empresa_contratista: "0",
-      estatus_: "",
-      fecha_contrato: "",
-      fecha_instalacion: "",
-      id: "",
-      id_cuenta: "",
-      motivo_standby: "",
-      nodo: "",
-      observaciones_instalacion: "",
-      plan_contratado: "",
-      recursos_inventario_instalacion: "",
-      telefono_cliente: "",
-    },
-  ]);
+    const [instaladores, setInstaladores] = useState<any[]>([]);
+    const [empresa, setEmpresa] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [now, setNow] = useState<any[]>([]);
   const [user, setUser] = useState<any>({});
-
-  const finishContrat = async (event: any) => {
-    const confirmFinish = window.confirm(
-      "¿Estás seguro que deseas FINALIZAR este contrato?"
-    );
-    if (confirmFinish) {
-      try {
-        const finished = await axios.get(`/contratos/${params.id}/finish`);
-        console.log(finished);
-        const responseData = finished.data;
-        console.log(responseData.message);
-        if (finished.status === 200) {
-          setShowSuccessToast(true);
-          setShowSuccessToastMessage(responseData.message);
-          setTimeout(() => {
-           window.location.reload();
-          }, 4000);
-        }
-      } catch (error: any) {
-        if (error.deleted && error.deleted.status === 401) {
-          setShowErrorToast(true);
-        }
-      }
-    }
-  };
-
-
-  const deleteContrat = async (event: any) => {
-    const confirmDelete = window.confirm(
-      "¿Estás seguro que deseas ELIMINAR este contrato?"
-    );
-    if (confirmDelete) {
-      try {
-        const deleted = await axios.get(`/contratos/${params.id}/delete`);
-        console.log(deleted);
-        const responseData = deleted.data;
-         console.log(responseData.message);
-        if (deleted.status === 200) {
-          setShowSuccessToast(true);
-          setShowSuccessToastMessage(responseData.message);
-        }
-      } catch (error: any) {
-        if (error.deleted && error.deleted.status === 401) {
-          setShowErrorToast(true);
-        }
-      }
-    }
-  };
 
   useEffect(() => {
     const getUser = async () => {
@@ -115,29 +50,40 @@ export default function Home({ params }: { params: { id: any } }) {
     };
     getNow();
   }, []);
-
   useEffect(() => {
-    const getData = async () => {
-      const contratData = await axios.get(`/api/contratos/${params.id}`);
-      setData(contratData.data);
-    };
-    getData();
+    fetch("/api/contratos")
+      .then((res) => res.json())
+      .then(setData);
+  }, []);
+  useEffect(() => {
+    fetch("/api/instaladores")
+      .then((res) => res.json())
+      .then(setInstaladores);
+  }, []);
+  useEffect(() => {
+    fetch("/api/empresas")
+      .then((res) => res.json())
+      .then(setEmpresa);
   }, []);
   useEffect(() => {
     const timeout = setTimeout(() => {
-      setRecords(data);
       setLoading(false);
     }, 3000);
     return () => clearTimeout(timeout);
   }, [data]);
+  
+  
+  const records: any[] = [{
+    instaladoresActivos: instaladores.filter((instalador) => instalador.empresa == params.idd).length,
+}];
 
   const columns = [
     {
-      name: "Fecha del Contrato",
-      selector: (row: any) => row.fecha_contrato,
+      name: "Instaladores Activos",
+      selector: (row: any) => row.instaladoresActivos,
       minWidth: "20",
       center: true,
-      cell: (row: any) => new Date(row.fecha_contrato).toLocaleDateString(),
+      cell: (row: any) => {return <p>{row.instaladoresActivos}</p>},
     },
     {
       name: "ID de la ONT",
@@ -217,7 +163,7 @@ export default function Home({ params }: { params: { id: any } }) {
     },
   ];
 
-  const title = `Contrato ${params.id} al día ${now}`;
+  const title = `Contrato ${params.idd} al día ${now}`;
 
   const logout = async () => {
     try {
@@ -272,7 +218,7 @@ export default function Home({ params }: { params: { id: any } }) {
 
     
 
-    doc.save(`contrato-${params.id}_${date}.pdf`);
+    doc.save(`contrato-${params.idd}_${date}.pdf`);
   }
 
   useEffect(() => {
@@ -381,15 +327,15 @@ export default function Home({ params }: { params: { id: any } }) {
             </CampoContrato>
           </div>
           <div className="flex lg:flex-row flex-col">
-            <CrudUpdate href={`${params.id}/edit`}>Editar</CrudUpdate>
+            <CrudUpdate>Editar</CrudUpdate>
             {records[0]?.estatus_ == 2 ? (
               ""
             ) : (
-              <CrudUpdate onClick={() => finishContrat("")}>
+              <CrudUpdate >
                 Finalizar
               </CrudUpdate>
             )}
-            <CrudDelete onClick={() => deleteContrat("")}>Eliminar</CrudDelete>
+            <CrudDelete >Eliminar</CrudDelete>
             <CrudUpdate onClick={(event)=>(createStatsPdf('Stats1'))}>Imprimir</CrudUpdate>
           </div>
         </div>

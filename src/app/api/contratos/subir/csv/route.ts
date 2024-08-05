@@ -53,7 +53,7 @@ export async function POST(request: any) {
     // Construir la ruta del archivo con el nuevo nombre
     const filePath = path.join(
       process.cwd(),
-      "public/uploads/xml",
+      "public/uploads/csv",
       modifiedFileName
     );
     await writeFile(filePath, buffer);
@@ -61,7 +61,6 @@ export async function POST(request: any) {
       `open ${filePath} to see the uploaded file ${modifiedFileName}`
     );
     const redFile = await readFile(filePath, { encoding: "utf8" });
-    console.log("mi promesa");
 
 
 
