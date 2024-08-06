@@ -43,6 +43,8 @@ export default function Home() {
   const [data, setData] = useState<any[]>([]);
   const [records, setRecords] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [instaladores, setInstaladores] = useState<any[]>([]);
+  const [empresa__, setEmpresa__] = useState<any[]>([]);
   const [now, setNow] = useState<any[]>([]);
   const [user, setUser] = useState<any>({});
   
@@ -51,7 +53,7 @@ export default function Home() {
   useEffect(() => {
     const getUser = async () => {
       const usuario = await axios.get("/api/auth/admin");
-      setUser(usuario);
+      setUser(usuario);  
     };
     getUser();
   }, []);
@@ -70,13 +72,24 @@ export default function Home() {
      .then((res) => res.json())
      .then(setData);
   }, []);
+   useEffect(() => {
+     fetch("/api/instaladores")
+       .then((res) => res.json())
+       .then(setInstaladores);
+   }, []);
+   useEffect(() => {
+     fetch("/api/empresas")
+       .then((res) => res.json())
+       .then(setEmpresa__);
+   }, []);
   useEffect(() => {
     const timeout = setTimeout(() => {
-      setRecords(data);
+      setRecords(instaladores);
+      console.log(records)
       setLoading(false);
     }, 1000);
     return () => clearTimeout(timeout);
-  }, [data]);
+  }, [instaladores]);
 
   const desdeDate = new Date(filterDesde);
   const hastaDate = new Date(filterHasta);
@@ -178,37 +191,30 @@ export default function Home() {
       maxWidth: "0",
     },
     {
-      name: "Fecha del Contrato",
-      selector: (row: any) => row.fecha_contrato,
+      name: "Nombres",
+      selector: (row: any) => row.Nombres,
       sortable: true,
       cell: (row: any) => {
-        return (
-          <Link href={`/contratos/${row.id}`}>
-            {new Date(row.fecha_contrato).toLocaleDateString()}
-          </Link>
-        );
+        return <Link href={`/instaladores/${row.C_Identidad}`}>{row.Nombres}</Link>;
       },
     },
     {
-      name: "ID de la ONT",
+      name: "Apellidos",
       selector: (row: any) => row.id,
       sortable: true,
       cell: (row: any) => {
-        return <Link href={`/contratos/${row.id}`}>{row.id}</Link>;
+        return <Link href={`/instaladores/${row.C_Identidad}`}>{row.Apellidos}</Link>;
       },
     },
     {
-      name: "Status del Contrato",
+      name: "Cédula de Identidad",
       selector: (row: any) => row.estatus_,
       sortable: true,
-      cell: (row: any) => {
-        if (row.estatus_ === 0) {
-          return <Link href={`/contratos/${row.id}`}>Agendado</Link>;
-        } else if (row.estatus_ === 1) {
-          return <Link href={`/contratos/${row.id}`}>Instalado</Link>;
-        } else if (row.estatus_ === 2) {
-          return <Link href={`/contratos/${row.id}`}>Finalizado</Link>;
-        }
+      cell: (row: any) => { return (
+        <Link href={`/instaladores/${row.C_Identidad}`}>
+          {row.C_Identidad}
+        </Link>
+      );
       },
     },
     {
@@ -216,55 +222,49 @@ export default function Home() {
       selector: (row: any) => row.empresa_contratista,
       sortable: true,
       cell: (row: any) => {
-        if (row.empresa_contratista) {
-          return <Link href={`/contratos/${row.id}`}>Servitel</Link>;
+        if (row.empresa) {
+          return <Link href={`/instaladores/${row.C_Identidad}`}>Servitel</Link>;
         } else {
-          return <Link href={`/contratos/${row.id}`}>Hetelca</Link>;
+          return <Link href={`/instaladores/${row.C_Identidad}`}>Hetelca</Link>;
         }
       },
     },
     {
-      name: "Instalador Asignado",
+      name: "Teléfono",
       selector: (row: any) => row.contratista_asignado,
       sortable: true,
       cell: (row: any) => {
-        return (
-          <Link href={`/contratos/${row.id}`}>
-            <p>{row.contratista_asignado}</p>
+        return <Link href={`/instaladores/${row.C_Identidad}`}>
+            <p>{row.n_telefono}</p>
           </Link>
-        );
       },
     },
   ];
 
   const estadisticData: any[] = [
     {
-      activo: data.filter((record) => record.estatus_ < 2).length,
-      instalado: data.filter((record) => record.estatus_ === 1).length,
-      finalizado: data.filter((record) => record.estatus_ === 2).length,
-      agendado: data.filter((record) => record.estatus_ === 0).length,
+      activo: instaladores.length,
+      instalado: instaladores.filter((record) => record.empresa === 1).length,
+      finalizado: instaladores.filter((record) => record.empresa === 0).length,
     },
   ];
 
   const estadisticColumns = [
     {
-      name: "Contratos Activos",
+      name: "Instaladores Activos",
       selector: (row: any) => row.activo,
     },
+
     {
-      name: "Contratos Agendados",
-      selector: (row: any) => row.agendado,
-    },
-    {
-      name: "Contratos Instalados",
+      name: "Instaladores Servitel",
       selector: (row: any) => row.instalado,
     },
     {
-      name: "Contratos Finalizados",
+      name: "Instaladores Hetelca",
       selector: (row: any) => row.finalizado,
     },
   ];
-  const title = `Contratos ${now}`;
+  const title = `Instaladores ${now}`;
 
   const paginationComponentOptions = {
     rowsPerPageText: "Filas por página",
@@ -663,7 +663,7 @@ export default function Home() {
 
       <div className=" md:px-20 px-5 z-10 ">
         <DataTable
-          title="Contratos"
+          title="Instaladores"
           columns={columns}
           data={mapedRecords}
           pagination

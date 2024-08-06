@@ -33,5 +33,8 @@ export const config = {
     '/login',
     '/api/contratos/:path*',
     '/empresas/:path*',
+    '/api/empresas/:path*',
+    '/api/instaladores/:path*',
+    '/instaladores/:path*',
   ],
 };

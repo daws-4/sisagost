@@ -73,9 +73,17 @@ export default function Home({ params }: { params: { idd: any } }) {
   }, [data]);
   
   
-  const records: any[] = [{
-    instaladoresActivos: instaladores.filter((instalador) => instalador.empresa == params.idd).length,
-}];
+  const records: any[] = [
+    {
+      activo: data.filter((record) => record.estatus_ < 2 && record.empresa_contratista == params.idd).length,
+      instalado: data.filter((record) => record.estatus_ === 1 && record.empresa_contratista == params.idd).length,
+      finalizado: data.filter((record) => record.estatus_ === 2 && record.empresa_contratista == params.idd).length,
+      agendado: data.filter((record) => record.estatus_ === 0 && record.empresa_contratista == params.idd).length,
+      instaladoresActivos: instaladores.filter(
+        (instalador) => instalador.empresa == params.idd
+      ).length,
+    },
+  ];
 
   const columns = [
     {
@@ -86,84 +94,45 @@ export default function Home({ params }: { params: { idd: any } }) {
       cell: (row: any) => {return <p>{row.instaladoresActivos}</p>},
     },
     {
-      name: "ID de la ONT",
-      selector: (row: any) => row.id,
+      name: "Contratos Activos",
+      selector: (row: any) => row.activo,
       minWidth: "20",
       center: true,
       cell: (row: any) => {
-        return <p>{row.id}</p>;
+        return <p>{row.activo}</p>;
       },
     },
     {
-      name: "C.I del cliente",
-      selector: (row: any) => row.ci_cliente,
+      name: "Contratos Instalados",
+      selector: (row: any) => row.instalado,
       minWidth: "20",
       center: true,
       cell: (row: any) => {
-        return <p>{row.ci_cliente}</p>;
+        return <p>{row.instalado}</p>;
       },
     },
     {
-      name: "Cuenta del Cliente",
-      selector: (row: any) => row.id_cuenta,
+      name: "Contratos Agendados",
+      selector: (row: any) => row.agendado,
       minWidth: "20",
       center: true,
       cell: (row: any) => {
-        return <p>{row.id_cuenta}</p>;
+        return <p>{row.agendado}</p>;
       },
     },
     {
-      name: "Status del Contrato",
-      selector: (row: any) => row.estatus_,
+      name: "Contratos Finalizados",
+      selector: (row: any) => row.finalizado,
       minWidth: "20",
       center: true,
-      cell: (row: any) => {
-        if (row.estatus_ === 0) {
-          return <p>Agendado</p>;
-        } else if (row.estatus_ === 1) {
-          return <p>Instalado</p>;
-        } else if (row.estatus_ === 2) {
-          return <p>Finalizado</p>;
+      cell: (row: any) => {{
+          return <p>{row.finalizado}</p>;
         }
       },
     },
-    {
-      name: "Plan Contratado",
-      selector: (row: any) => row.plan_contratado,
-      minWidth: "20",
-      center: true,
-      cell: (row: any) => {
-        return <p>{row.plan_contratado}</p>;
-      },
-    },
-    {
-      name: "Teléfono del Cliente",
-      selector: (row: any) => row.telefono_cliente,
-      minWidth: "20",
-      center: true,
-      cell: (row: any) => {
-        return <p>{row.telefono_cliente}</p>;
-      },
-    },
-    {
-      name: "Nodo",
-      selector: (row: any) => row.nodo,
-      minWidth: "20",
-      center: true,
-      cell: (row: any) => {
-        return <p>{row.nodo}</p>;
-      },
-    },
-    {
-      name: "Fecha de Instalación",
-      selector: (row: any) => row.fecha_instalacion,
-      minWidth: "20",
-      center: true,
-      cell: (row: any) => new Date(row.fecha_instalacion).toLocaleDateString(),
-    },
   ];
 
-  const title = `Contrato ${params.idd} al día ${now}`;
+  const title = `Empresa ${params.idd == '1' ? 'Servitel' : 'Hetelca'} al día ${now}`;
 
   const logout = async () => {
     try {
@@ -181,44 +150,25 @@ export default function Home({ params }: { params: { idd: any } }) {
     const doc = new jsPDF();
 
     //const
-        const fecha_contrato = records[0].fecha_contrato;
-        const id = records[0].id;
-        const ci_cliente = records[0].ci_cliente;
-        const id_cuenta = records[0].id_cuenta;
-        const estatus_ = records[0].estatus_;
-        const plan_contratado = records[0].plan_contratado;
-        const telefono_cliente = records[0].telefono_cliente;
-        const nodo = records[0].nodo;
-        const fecha_instalacion = records[0].fecha_instalacion;
-        const empresa_contratista = records[0].empresa_contratista;
-        const contratista_asignado = records[0].contratista_asignado;
-        const direccion_contrato = records[0].direccion_contrato;
-        const recursos_inventario_instalacion = records[0].recursos_inventario_instalacion;
-        const observaciones_instalacion = records[0].observaciones_instalacion;
-        const motivo_standby = records[0].motivo_standby;
+      const activo = data.filter((record) => record.estatus_ < 2 && record.empresa_contratista == params.idd).length
+      const instalado = data.filter((record) => record.estatus_ === 1 && record.empresa_contratista == params.idd).length
+      const finalizado = data.filter((record) => record.estatus_ === 2 && record.empresa_contratista == params.idd).length
+      const agendado = data.filter((record) => record.estatus_ === 0 && record.empresa_contratista == params.idd).length
+      const instaladoresActivos = instaladores.filter(
+        (instalador) => instalador.empresa == params.idd
+      ).length
 
 
 //texto
     doc.text(title, 60, 10);
-    doc.text(`Fecha del Contrato: ${fecha_contrato}`, 30, 20);
-    doc.text(`ID de la ONT: ${id}`, 30, 30);
-    doc.text(`C.I del cliente: ${ci_cliente}`, 30, 40);
-    doc.text(`Cuenta del Cliente: ${id_cuenta}`, 30, 50);
-    doc.text(`Status del Contrato: ${estatus_}`, 30, 60);
-    doc.text(`Plan Contratado: ${plan_contratado}`, 30, 70);
-    doc.text(`Teléfono del Cliente: ${telefono_cliente}`, 30, 80);
-    doc.text(`Nodo: ${nodo}`, 30, 90);
-    doc.text(`Fecha de Instalación: ${fecha_instalacion}`, 30, 100);
-    doc.text(`Empresa Contratista: ${empresa_contratista}`, 30, 110);
-    doc.text(`Contratista Asignado: ${contratista_asignado}`, 30, 120);
-    doc.text(`Dirección del Contrato: ${direccion_contrato}`, 30, 130);
-    doc.text(`Recursos del Inventario: ${recursos_inventario_instalacion}`, 30, 140);
-    doc.text(`Observaciones de la Instalación: ${observaciones_instalacion}`, 30, 150);
-    doc.text(`Motivo de Standby: ${motivo_standby}`, 30, 160);
-
     
-
-    doc.save(`contrato-${params.idd}_${date}.pdf`);
+    doc.text(`Instaladores Activos: ${instaladoresActivos}`, 30, 30);
+    doc.text(`Contratos Instalados: ${instalado}`, 30, 40);
+    doc.text(`Constratos Finalizados: ${finalizado}`, 30, 50);
+    doc.text(`Constratos Agendados: ${agendado}`, 30, 60);
+    doc.text(`Constratos Activos: ${activo}`, 30, 70);
+    
+    doc.save(`empresa-${params.idd == '1' ? 'Servitel' : 'Hetelca'}_${date}.pdf`);
   }
 
   useEffect(() => {
@@ -276,18 +226,14 @@ export default function Home({ params }: { params: { idd: any } }) {
       <div className="md:px-20 px-5 z-10 mb-10">
         <div className="flex flex-col bg-gray-700 md:px-20 px-5 z-10 py-5">
           <div id='Stats1' className="flex lg:flex-row flex-col">
-            <CampoContrato href="/contratos">
-              <TitleContrato>Empresa</TitleContrato>
+            <CampoContrato href={`/instaladores`}>
+              <TitleContrato>Instaladores</TitleContrato>
               <TextContrato>
-                {records[0]
-                  ? records[0].empresa_contratista == 1
-                    ? "Servitel"
-                    : "Hetelca"
-                  : ""}
+                
               </TextContrato>
             </CampoContrato>
-            <CampoContrato href="/login">
-              <TitleContrato>Instalador</TitleContrato>
+            <CampoContrato href="#">
+              <TitleContrato>Inventario</TitleContrato>
               <TextContrato>
                 {records[0]
                   ? records[0].contratista_asignado
@@ -295,30 +241,15 @@ export default function Home({ params }: { params: { idd: any } }) {
                     : ""
                   : ""}
               </TextContrato>
-              {/* api de los usuarios */}
             </CampoContrato>
-            <CampoContrato href="/login">
+            <CampoContrato href="#">
               <TitleContrato>Dirección</TitleContrato>
               <TextContrato>
                 {records[0] ? records[0].direccion_contrato ?? "" : ""}
               </TextContrato>
             </CampoContrato>
-            {records[0] && records[0].estatus_
-              ? (
-                  <CampoContrato href="/login">
-                    <TitleContrato>Material Utilizado</TitleContrato>
-                    <TextContrato>
-                      {records[0]
-                        ? records[0].recursos_inventario_instalacion ?? ""
-                        : ""}
-                    </TextContrato>
-                  </CampoContrato>
-                ) ?? ""
-              : ""}
             <CampoContrato href="#">
-              <TitleContrato>
-                {records[0]?.estatus_ ? "Observaciones" : "Motivo de Pausa"}
-              </TitleContrato>
+              <TitleContrato>Contacto</TitleContrato>
               <TextContrato>
                 {records[0]?.estatus_
                   ? records[0]?.observaciones_instalacion ?? ""
@@ -327,15 +258,6 @@ export default function Home({ params }: { params: { idd: any } }) {
             </CampoContrato>
           </div>
           <div className="flex lg:flex-row flex-col">
-            <CrudUpdate>Editar</CrudUpdate>
-            {records[0]?.estatus_ == 2 ? (
-              ""
-            ) : (
-              <CrudUpdate >
-                Finalizar
-              </CrudUpdate>
-            )}
-            <CrudDelete >Eliminar</CrudDelete>
             <CrudUpdate onClick={(event)=>(createStatsPdf('Stats1'))}>Imprimir</CrudUpdate>
           </div>
         </div>
